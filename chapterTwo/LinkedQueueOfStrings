@@ -1,0 +1,45 @@
+public class LinkedQueueOfStrings {
+	
+	private Node first;
+	private Node last;
+	
+	private class Node {
+		String item;
+		Node next;
+	}
+	
+	public LinkedQueueOfStrings() {
+		first = new Node();
+		last = new Node();
+	}
+	
+	public void enqueue(String item) {
+		Node oldlast = last;
+		last = new Node();
+		last.next = null;
+		last.item = item;
+		if(this.isEmpty()) {
+			first = oldlast;
+		} else {
+			oldlast.next = last;
+		}
+		
+	}
+	
+	public String dequeue() {
+		return "";
+	}
+	
+	public boolean isEmpty() {
+		return first == null;
+	}
+	
+	public static void main(String[] args) {
+		LinkedQueueOfStrings l = new LinkedQueueOfStrings();
+		l.enqueue("to");
+		l.enqueue("be");
+		l.dequeue();
+		l.isEmpty();
+	}
+	
+}
