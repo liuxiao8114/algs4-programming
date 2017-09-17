@@ -1,4 +1,5 @@
-package com.xiao.client;
+import edu.princeton.cs.algs4.In;
+import edu.princeton.cs.algs4.StdIn;
 import edu.princeton.cs.algs4.WeightedQuickUnionUF;
 
 public class Percolation {
@@ -27,7 +28,7 @@ public class Percolation {
 	}
 	
 	private int transToIndex(int row, int col) {
-		return (row - 1) * N + col - 1;
+		return (row - 1) * N + col;
 	}
 	
 	public void open(int row, int col) {
@@ -92,8 +93,25 @@ public class Percolation {
 		return openCounts;
 	}
 	
+	private static boolean isOdd(int n) {
+		return n % 2 == 0;
+	}
+	
 	public static void main(String[] args) {
+		int[] lists = new In("f:\\workspace\\percolation\\heart25.txt").readAllInts();
+		int row = 0, col = 0;
+		Percolation p = new Percolation(lists[0]);
 		
+		for(int i = 1; i < lists.length; i++) {
+			if(isOdd(i)) {
+				col = lists[i];
+				p.open(row, col);
+			} else {
+				row = lists[i];
+			}
+		}
+		
+		p.percolates();
 	}
 }
 
