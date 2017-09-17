@@ -1,5 +1,3 @@
-package com.xiao.client;
-
 import edu.princeton.cs.algs4.StdRandom;
 import edu.princeton.cs.algs4.StdStats;
 
@@ -14,16 +12,16 @@ public class PercolationStats {
 		}
 		
 		N = n;
-		experiment = new Percolation(n);
 		results = new double[trials];
 		
 		for(int i = 0; i < trials; i++) {
 			int row, col;
+			experiment = new Percolation(N);
 			openCounts = 0;
 			do {
 				row = StdRandom.uniform(1, n + 1);
 				col = StdRandom.uniform(1, n + 1);
-				if(!experiment.isOpen(row, col)) {
+				if(experiment.isOpen(row, col)) {
 					continue;
 				}
 				
@@ -52,7 +50,6 @@ public class PercolationStats {
 	}
 	
 	public static void main(String[] args) {
-		PercolationStats p = new PercolationStats(200, 100);
-		System.out.println("mean: " + p.mean());
+
 	}
 }
