@@ -9,8 +9,7 @@ public class LinkedQueueOfStrings {
 	}
 	
 	public LinkedQueueOfStrings() {
-		first = new Node();
-		last = new Node();
+
 	}
 	
 	public void enqueue(String item) {
@@ -19,7 +18,7 @@ public class LinkedQueueOfStrings {
 		last.next = null;
 		last.item = item;
 		if(this.isEmpty()) {
-			first = oldlast;
+			first = last;
 		} else {
 			oldlast.next = last;
 		}
@@ -27,7 +26,10 @@ public class LinkedQueueOfStrings {
 	}
 	
 	public String dequeue() {
-		return "";
+		String s = first.item;
+		first = first.next;
+		if(this.isEmpty()) last = null;
+		return s;
 	}
 	
 	public boolean isEmpty() {
@@ -38,7 +40,8 @@ public class LinkedQueueOfStrings {
 		LinkedQueueOfStrings l = new LinkedQueueOfStrings();
 		l.enqueue("to");
 		l.enqueue("be");
-		l.dequeue();
+		System.out.println(l.first.item);
+		System.out.println(l.dequeue());
 		l.isEmpty();
 	}
 	
