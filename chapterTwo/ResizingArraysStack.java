@@ -5,50 +5,67 @@ import edu.princeton.cs.algs4.In;
 import edu.princeton.cs.algs4.StdOut;
 
 
-public class ArraysStackOfStrings implements Stack<String>,Iterable<String> {
-	private String[] s;
-	private int N;
+public class ResizingArraysStack<T> implements Stack<T>, Iterable<T> {
+	private T[] a;
+	private int n;
 	
-	public ArraysStackOfStrings (int capacity) {
-		s = new String[capacity];
-		N = 0;
+	public ResizingArraysStack() {
+		a = (T[]) new Object[2];
+		n = 0;
 	}
 	
 	@Override
-	public boolean isEmpty() {
-		return N == 0;
+	public Iterator<T> iterator() {
+		return new ReverseArraysStackIterator();
+	}
+	
+	private class ReverseArraysStackIterator implements Iterator<T> {
+		private int current = n;
 		
-	}
-
-	@Override
-	public String pop() {
-		return s[--N];
-	}
-	
-	@Override
-	public void push(String t) {
-		s[N++] = t;
-	}
-	
-	private class ReverseArrayIterator implements Iterator<String> {
-		private int current = N - 1;
-
 		@Override
 		public boolean hasNext() {
 			return current >= 0;
 		}
 
 		@Override
-		public String next() {
-			if(!hasNext()) { throw new NoSuchElementException(); }
-			return s[current--];
+		public T next() {
+			if(!hasNext()) throw new NoSuchElementException();
+			return a[current--];
 		}
 	}
 
 	@Override
-	public Iterator<String> iterator() {
-		// TODO Auto-generated method stub
-		return new ReverseArrayIterator();
+	public boolean isEmpty() {
+		return n == 0;
+	}
+
+	@Override
+	public T pop() {
+		if(isEmpty()) throw new NoSuchElementException("Stack underflow");
+		T t = a[n - 1];
+		a[n - 1] = null;
+		n--;
+		
+		if(n > 0 && n < a.length / 4) resize(a.length/2);
+		return t;
+	}
+
+	@Override
+	public void push(T t) {
+		if(n == a.length) resize(2 * a.length);
+		a[n++] = t;
+	}
+	
+	private void resize(int capacity) {
+		if(capacity < n) {
+			throw new NoSuchElementException("cannot create an array less than n");
+		}
+		
+		T[] t = (T[])new Object[capacity];
+		for(int i = 0; i < n; i++) {
+			t[i] = a[i];
+		}
+		a = t;
 	}
 	
 	public static void main(String[] args) {

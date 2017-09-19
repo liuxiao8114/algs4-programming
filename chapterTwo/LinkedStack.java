@@ -1,4 +1,5 @@
 import java.util.Iterator;
+import java.util.NoSuchElementException;
 
 public class LinkedStack<T> implements Iterable<T>,Stack<T> {
 
@@ -19,6 +20,7 @@ public class LinkedStack<T> implements Iterable<T>,Stack<T> {
 
 		@Override
 		public T next() {
+			if(!hasNext()) throw new NoSuchElementException();
 			T t = current.item;
 			current = current.next;
 			return t;
