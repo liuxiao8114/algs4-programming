@@ -20,10 +20,8 @@ public class RandomizedQueue<Item> implements Iterable<Item> {
 		
 		public RandomizedArrayIterator() {
 			index = 0;
-			int length = items.length;
-			for(int i = 0; i < length; i++) {
-				if(items[i] == null) break;
-				int r = i + StdRandom.uniform(length - i);
+			for(int i = 0; i < n; i++) {
+				int r = i + StdRandom.uniform(n - i);
 				Item temp = items[i];
 				items[i] = items[r];
 				items[r] = temp;
@@ -32,7 +30,7 @@ public class RandomizedQueue<Item> implements Iterable<Item> {
 		
 		@Override
 		public boolean hasNext() {
-			return (index <= n && items[index] != null);
+			return (index < n && items[index] != null);
 		}
 
 		@Override
@@ -55,13 +53,12 @@ public class RandomizedQueue<Item> implements Iterable<Item> {
 	
 	// return the number of items on the randomized queue
 	public int size() {
-		if(isEmpty()) return 0; 
-		return n + 1;
+		return n;
 	}   
 	
 	// add the item
 	public void enqueue(Item item) {
-		if(n == items.length - 1) {
+		if(n == items.length) {
 			resize(items.length * 2);
 		}
 		
@@ -83,8 +80,8 @@ public class RandomizedQueue<Item> implements Iterable<Item> {
 	
 	// remove and return a random item
 	public Item dequeue() {
-		Item i = items[n];
-		items[n] = null;
+		Item i = items[n - 1];
+		items[n - 1] = null;
 		n--;
 		if(n < items.length / 4) {
 			resize(items.length / 2);
@@ -94,7 +91,7 @@ public class RandomizedQueue<Item> implements Iterable<Item> {
 	
 	// return a random item (but do not remove it)
 	public Item sample() {
-		return items[StdRandom.uniform(n + 1)];
+		return items[StdRandom.uniform(n)];
 	}                   
 	
 	// unit testing (optional)
