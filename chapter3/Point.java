@@ -39,8 +39,9 @@ public class Point implements Comparable<Point> {
 	}
 	
 	public Comparator<Point> slopeOrder() {
+
 		return new Comparator<Point>() {
-			Point p0 = new Point(StdRandom.uniform(100), StdRandom.uniform(100));
+			Point p0 = new Point(x, y);
 			@Override
 			public int compare(Point p1, Point p2) {
 				if(p1.compareTo(p2) == 0) return 0;
@@ -49,10 +50,7 @@ public class Point implements Comparable<Point> {
 				double slope2 = p2.slopeTo(p0);
 				if(slope1 < slope2) return -1;
 				else if(slope1 > slope2) return 1;
-				else {
-					p0 = new Point(StdRandom.uniform(100), StdRandom.uniform(100));
-					return compare(p1, p2);
-				}
+				else return 0;
 			}
 		};
 	}

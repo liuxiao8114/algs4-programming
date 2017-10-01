@@ -33,7 +33,7 @@ public class BruteCollinearPoints {
 	// the line segments
 	public LineSegment[] segments() {
 		int len = points.length;
-		lines = new LineSegment[points.length];
+		LineSegment[] temp = new LineSegment[points.length];
 		for(int i = 0; i < len - 3; i++) {
 			for(int j = i + 1; j < len - 2; j++) {
 				for(int k = j + 1; k < len - 1; k++) {
@@ -49,17 +49,23 @@ public class BruteCollinearPoints {
 							ret[3] = points[l];
 							Arrays.sort(ret);
 							LineSegment line = new LineSegment(ret[0], ret[3]);
-							lines[lineSize++] = line;
+							temp[lineSize++] = line;
 						}
 					}
 				}
 			}
 		}
+		
+		lines = new LineSegment[lineSize];
+		for(int i = 0; i < lineSize; i++) {
+			lines[i] = temp[i];
+		}
+		
 		return lines;
 	}
 	
 	public static void main(String[] args) {
-		int[] p = new In("").readAllInts();
+		int[] p = new In("C:\\workspace\\algs4-test-data\\collinear\\input6.txt").readAllInts();
 		Point[] points = new Point[p.length / 2];
 		int j = 0;
 		for(int i = 0; i < p.length; i++) {
