@@ -1,4 +1,5 @@
 import java.util.Arrays;
+import java.util.Comparator;
 
 import edu.princeton.cs.algs4.In;
 import edu.princeton.cs.algs4.StdDraw;
@@ -21,57 +22,66 @@ public class FastCollinearPoints {
 	// the line segments
 	public LineSegment[] segments() {
 		int len = points.length;
-		double[] slopes;
-		LineSegment[] temp = new LineSegment[points.length / 4];
-		
-		for(int i = 0; i < len - 3; i++) {
-			Point p0 = points[i];
-			//slopes = new double[len - i];
-			Arrays.sort(points, i + 1, len - 1, p0.slopeOrder());
-			int j = i + 1;
-			while(j < len) {
-			  int lt = j, ht = len - 1;
-			  while(ht - lt == 1) {
-			    if(points[lt].slopeTo(p0) < points[ht].slopeTo(p0)) ht = lt + (ht - lt) / 2;
-			    else if(points[lt].slopeTo(p0) == points[ht].slopeTo(p0)) {
-			      lt = ht;
-			      ht = lt + (len - 1 - lt) / 2;
-			    } else {
-			    	throw new IllegalArgumentException("points array should be sorted");
-			    }
-			  }
-			  
-			  // have no repeat value
-			  if(ht == j + 1) {
-			    j++;
-			    continue;
-			  }
-			  
-			  int size;
-			  if(points[lt].slopeTo(points[ht]) == 0) {
-			    size = ht - j + 1 ;
-			  } else {
-			    size = lt - j + 1;
-			  }
-			  
-			  j += size;
-			  if(size <= 3) continue;
-			  
-			  //make a line
-			  Point[] ret = new Point[size];
+		LineSegment[] temp = new LineSegment[len];
+		Point[] pointsCopy = points.clone();
+		Arrays.sort(pointsCopy);
+		for(int i = 0; i < len; i++) {
+			Point[] subCopy = pointsCopy.clone();
+			Point p0 = subCopy[i];
+			Arrays.sort(subCopy, p0.slopeOrder());
+			int lt = 1, ht = lt + 1;
+			while(ht < len) {
+				if(subCopy[lt].slopeTo(p0) < subCopy[ht].slopeTo(p0)) {
+					int size = ht - lt + 1;
+					if(size < 4) { 
+						lt = ht;
+						ht = lt + 1;
+						continue;
+					} else {
+						//make a line
+						Point[] ret = new Point[size];
+						//add the p0 while there is a line
+						ret[0] = p0;	
+						for(int k = 1; k < size; k++) {
+							ret[k] = subCopy[lt + k - 1];
+						}
+						
+						Arrays.sort(ret);
+						if(ret[0] == p0) {
+							LineSegment line = new LineSegment(ret[0], ret[size - 1]);
+							temp[lineSize++] = line;
+						}
+						lt = ht;
+						ht = lt + 1;
+					}
+				} else {
+					ht++;
+				}
+			}
+			
+			if(ht - lt >= 3) {
+				int size = ht - lt + 1;
+				Point[] ret = new Point[size];
 				
-			  for(int k = j; k < size; k++) {
-				  ret[k] = points[k];
-			  }
-			  
-			  Arrays.sort(ret);
-			  LineSegment line = new LineSegment(ret[0], ret[size - 1]);
-			  temp[lineSize++] = line;
-			  
+				ret[0] = p0;
+				
+				for(int k = 1; k < size; k++) {
+					ret[k] = subCopy[lt + k - 1];
+				}
+				//add the p0 while there is a line
+				Arrays.sort(ret);
+				if(ret[0] == p0) {
+					LineSegment line = new LineSegment(ret[0], ret[size - 1]);
+					temp[lineSize++] = line;
+				}
 			}
 		}
 		
 		this.lines = new LineSegment[lineSize];
+		
+		for(int i = 0; i < lineSize; i++) {
+			lines[i] = temp[i];
+		}
 		
 		return lines;
 	}
@@ -99,7 +109,8 @@ public class FastCollinearPoints {
 
 	    // print and draw the line segments
 	    FastCollinearPoints collinear = new FastCollinearPoints(points);
-	    for (LineSegment segment : collinear.segments()) {
+	    LineSegment[] linese = collinear.segments();
+	    for (LineSegment segment : linese) {
 	        StdOut.println(segment);
 	        segment.draw();
 	    }

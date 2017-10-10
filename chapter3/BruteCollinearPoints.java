@@ -18,7 +18,7 @@ public class BruteCollinearPoints {
 			if(points[i] == null) throw new IllegalArgumentException("have null item");
 			for(int j = i + 1; j < points.length; j++) {
 				if(points[i].compareTo(points[j]) == 0) 
-					throw new IllegalArgumentException("have repeated points");
+					throw new IllegalArgumentException("have repeated points");	
 			}
 		}
 		
@@ -65,7 +65,7 @@ public class BruteCollinearPoints {
 	}
 	
 	public static void main(String[] args) {
-		int[] p = new In("C:\\workspace\\algs4-test-data\\collinear\\input6.txt").readAllInts();
+		int[] p = new In("D:\\eclipseWorkspace\\algs-test-data\\collinear\\input20.txt").readAllInts();
 		Point[] points = new Point[p.length / 2];
 		int j = 0;
 		for(int i = 0; i < p.length; i++) {

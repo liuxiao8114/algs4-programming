@@ -26,10 +26,34 @@ public class Board {
 
     public Board(int[][] blocks)           // construct a board from an n-by-n array of blocks
                                            // (where blocks[i][j] = block in row i, column j)
-    public int dimension()                 // board dimension n
-    public int hamming()                   // number of blocks out of place
-    public int manhattan()                 // sum of Manhattan distances between blocks and goal
-    public boolean isGoal()                // is this board the goal board?
+
+    // board dimension n
+    public int dimension() {
+      return n;
+    }                 
+
+    // is this board the goal board?
+    public boolean isGoal() {
+      return manhattan() == 0;
+    }     
+
+    // number of blocks out of place
+    public int hamming() {
+      int count = 0;
+      for(int i = 1; i < n * n; i++) {
+          if(blocks[i] != i) count++;
+      }
+      return count;
+    }    
+                  
+    // sum of Manhattan distances between blocks and goal
+    public int manhattan() {
+      int count = 0;
+      for(int i = 1; i < n * n; i++) {
+        count += (blocks[i] - i);
+      }
+      return count;
+    }              
 
     // a board that is obtained by exchanging any pair of blocks
     public Board twin() {
