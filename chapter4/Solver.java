@@ -1,56 +1,76 @@
+import java.util.Comparator;
+
+import edu.princeton.cs.algs4.In;
+import edu.princeton.cs.algs4.MinPQ;
+import edu.princeton.cs.algs4.Queue;
+import edu.princeton.cs.algs4.StdOut;
+
 public class Solver {
-    private MinPQ<Board> pq;
+    private MinPQ<Node> pq;
     private int steps;
-    private Board preBoard = null;
-    private Board initial;
+
+    private class Node {
+      final Board board;
+      int moves;
+      Node prevNode;
+      boolean isTwin;
+      public Node(Board b, int m, Node prev, boolean isTwin) {
+        this.board = b;
+        this.moves = m;
+        this.prevNode = prev;
+        this.isTwin = isTwin;
+      }
+    }
 
     // find a solution to the initial board (using the A* algorithm)
     public Solver(Board initial) {
 
         if(initial == null) throw new IllegalArgumentException();
 
-        this.initial = initial;
-        pq = new MinPQ<Board>(new Comparator<Board>() {
+        pq = new MinPQ<Node>(new Comparator<Node>() {
+          @Override
+          public int compare(Node n1, Node n2) {
+              int priority1 = n1.board.manhattan() + n1.moves;
+              int priority2 = n2.board.manhattan() + n2.moves;
 
-        @Override
-        public int compare(Board b1, Board b2) {
-            int bm1 = b1.manhattan();
-            int bm2 = b2.manhattan();
-
-            if(bm1 > bm2) return 1;
-            if(bm1 < bm2) return -1;
-            return 0;
-            }
+              if(priority1 > priority2) return 1;
+              if(priority1 < priority2) return -1;
+              return 0;
+          }
         });
         steps = 0;
-        pq.insert(initial);
+        pq.insert(new Node(initial, 0, null, false));
+        pq.insert(new Node(initial.twin(), 0, null, true));
     }
 
     // is the initial board solvable?
     public boolean isSolvable() {
-
+      return steps != -1;
     }
 
     // min number of moves to solve initial board; -1 if unsolvable
     public int moves() {
-      return isSolvable() ? steps : -1;
+      return steps;
     }
 
     // sequence of boards in a shortest solution; null if unsolvable
     public Iterable<Board> solution() {
-        Queue q = new Queue();
+        Queue<Board> q = new Queue<Board>();
         while(!pq.isEmpty()) {
-            Board minBoard = pq.delMin();
-            q.enqueue(minBoard);
-            steps++;
-            if(minBoard.isGoal()) break;
-            for(Board b : minBoard.neighbors()) {
-                if(b.equals(preBoard)) continue;
-                pq.insert(b);
+            Node minNode = pq.delMin();
+            q.enqueue(minNode.board);
+            if(minNode.board.isGoal()) {
+              steps = minNode.isTwin ? -1 : minNode.moves;
+              break;
             }
-            preBoard = minBoard;
+            for(Board b : minNode.board.neighbors()) {
+                if(minNode.prevNode != null &&
+                		b.equals(minNode.prevNode.board)) continue;
+                pq.insert(new Node(b, minNode.moves++, minNode, minNode.isTwin));
+            }
         }
-        return q;
+        if(steps != -1) return q;
+        return null;
     }
 
     public static void main(String[] args) {

@@ -1,6 +1,12 @@
+import java.util.Arrays;
+
+import edu.princeton.cs.algs4.In;
+import edu.princeton.cs.algs4.Stack;
+import edu.princeton.cs.algs4.StdOut;
+
 public class Board {
     private int n; //dimension
-    private int[] blocks = [1, 2, 3, 4 ,5, 6, 0, 7 ,8];
+    private int[] blocks;
 
     /*
     corner: 0, 2, 6, 8
@@ -23,37 +29,49 @@ public class Board {
     edge: 0 < i < n - 1 || n * (n - 1)  < i < n * n - 1 ||
     middle: 5, 6, 9, 10
     */
-
-    public Board(int[][] blocks)           // construct a board from an n-by-n array of blocks
-                                           // (where blocks[i][j] = block in row i, column j)
+    // construct a board from an n-by-n array of blocks
+    // (where blocks[i][j] = block in row i, column j)
+    public Board(int[][] blocks) {
+      n = blocks.length;
+      this.blocks = new int[n * n];
+      for(int i = 0; i < blocks.length; i++) {
+        for(int j = 0; j < blocks[i].length; j++) {
+          this.blocks[i * n + j] = blocks[i][j];
+        }
+      }
+    }
 
     // board dimension n
     public int dimension() {
       return n;
-    }                 
+    }
 
     // is this board the goal board?
     public boolean isGoal() {
       return manhattan() == 0;
-    }     
+    }
 
     // number of blocks out of place
     public int hamming() {
       int count = 0;
-      for(int i = 1; i < n * n; i++) {
-          if(blocks[i] != i) count++;
+      for(int i = 0; i < n * n; i++) {
+          if(blocks[i] != i + 1) count++;
       }
       return count;
-    }    
-                  
+    }
+
     // sum of Manhattan distances between blocks and goal
     public int manhattan() {
-      int count = 0;
-      for(int i = 1; i < n * n; i++) {
-        count += (blocks[i] - i);
+        int count = 0;
+        for(int i = 0; i < n * n; i++) {
+          if(blocks[i] == i + 1 || blocks[i] == 0) continue;
+          double a = Math.ceil((double)(i + 1) / n);
+          double b = Math.ceil((double)blocks[i] / n);
+          if(a > b) count += Math.abs((i + 1) - (a - b) * n - blocks[i]) + (a - b);
+          else count += Math.abs(blocks[i] - (b - a) * n - (i + 1)) + (b - a);
+        }
+        return count;
       }
-      return count;
-    }              
 
     // a board that is obtained by exchanging any pair of blocks
     public Board twin() {
@@ -87,10 +105,16 @@ public class Board {
     //3. push in stack or queue in queue
     public Iterable<Board> neighbors() {
       Stack<Board> iter = new Stack<Board>();
-      int index = Arrays.binarySearch(blocks, 0);
-
+      int index = -1;
+      for(int i = 0;i < blocks.length; i++) {
+    	  if(blocks[i] == 0) {
+    		  index = i;
+    		  break;
+    	  }
+      }
+      System.out.println("what the fuck index: " + index);
       //left
-      if((index - 1) % n != 0) {
+      if(index - 1 == 0 || (index > 0 && (index - 1) % n != 0)) {
         iter.push(new Board(transformXY(exch(blocks, index, index - 1))));
       }
 
@@ -100,7 +124,7 @@ public class Board {
       }
 
       //top
-      if(index - n > 0) {
+      if(index - n >= 0) {
         iter.push(new Board(transformXY(exch(blocks, index, index - n))));
       }
 
@@ -113,7 +137,7 @@ public class Board {
     }
 
     private int[][] transformXY(int[] k) {
-      int[][] arr;
+      int[][] arr = new int[n][n];
       for(int i = 0; i < n; i++) {
         for(int j = 0; j < n; j++) {
           arr[i][j] = k[i * n + j];
@@ -124,6 +148,11 @@ public class Board {
 
     private int[] exch(int[] arr, int x, int y) {
       int[] ret = arr.clone();
+      System.out.println("x: " + x + ", y: " + y);
+      for(int i = 0; i < arr.length; i++) {
+          System.out.print(arr[i] + "  ");
+      }
+      System.out.println();
       int temp = ret[x];
       ret[x] = ret[y];
       ret[y] = temp;
@@ -132,19 +161,32 @@ public class Board {
 
     // string representation of this board (in the output format specified below)
     public String toString() {
-      Stdout.println(n);
-
-      for(int j = 0; j < n; j++) {
-        Stdout.print(" ");
-        for(int i = 0; i < n; i++) {
-          Stdout.print(blocks[i] + "  ");
+      StringBuilder s = new StringBuilder();
+      s.append(n + "\n");
+      for(int i = 0; i < n; i++) {
+    	  s.append(" ");
+        for(int j = 0; j < n; j++) {
+        	s.append(blocks[i * n + j] + "  ");
         }
-        Stdout.println();
+        s.append("\n");
       }
+      return s.toString();
     }
 
     // unit tests (not graded)
     public static void main(String[] args) {
-
+      In in = new In(args[0]);
+      int n = in.readInt();
+      int[][] blocks = new int[n][n];
+      for (int i = 0; i < n; i++)
+          for (int j = 0; j < n; j++)
+              blocks[i][j] = in.readInt();
+      Board initial = new Board(blocks);
+      StdOut.println("initial:  " + initial);
+      StdOut.println("twin:  " + initial.twin());
+      StdOut.println("neighbors:");
+      for(Board b : initial.neighbors()) {
+    	  StdOut.println(b.toString() + " manhattan: " + b.manhattan() + ", hamming: " + b.hamming());
+      }
     }
 }
