@@ -55,6 +55,7 @@ public class Board {
     public int hamming() {
       int count = 0;
       for(int i = 0; i < n * n; i++) {
+    	  if(blocks[i] == 0) continue;
           if(blocks[i] != i + 1) count++;
       }
       return count;
@@ -75,8 +76,14 @@ public class Board {
 
     // a board that is obtained by exchanging any pair of blocks
     public Board twin() {
-      int index = Arrays.binarySearch(blocks, 0);
-      if( index - 2 < 0) {
+		int index = -1;
+		for(int i = 0;i < blocks.length; i++) {
+		  if(blocks[i] == 0) {
+			  index = i;
+			  break;
+		  }
+		}
+      if(index - 2 < 0) {
         return new Board(transformXY(exch(blocks, n * n - 1, n * n - 2)));
       }
         return new Board(transformXY(exch(blocks, 0, 1)));
@@ -112,9 +119,8 @@ public class Board {
     		  break;
     	  }
       }
-      System.out.println("what the fuck index: " + index);
       //left
-      if(index - 1 == 0 || (index > 0 && (index - 1) % n != 0)) {
+      if(index % n != 0) {
         iter.push(new Board(transformXY(exch(blocks, index, index - 1))));
       }
 
@@ -148,11 +154,6 @@ public class Board {
 
     private int[] exch(int[] arr, int x, int y) {
       int[] ret = arr.clone();
-      System.out.println("x: " + x + ", y: " + y);
-      for(int i = 0; i < arr.length; i++) {
-          System.out.print(arr[i] + "  ");
-      }
-      System.out.println();
       int temp = ret[x];
       ret[x] = ret[y];
       ret[y] = temp;

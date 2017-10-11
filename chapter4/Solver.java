@@ -41,11 +41,12 @@ public class Solver {
         steps = 0;
         pq.insert(new Node(initial, 0, null, false));
         pq.insert(new Node(initial.twin(), 0, null, true));
+        this.solution();
     }
 
     // is the initial board solvable?
     public boolean isSolvable() {
-      return steps != -1;
+      return solution() != null;
     }
 
     // min number of moves to solve initial board; -1 if unsolvable
@@ -66,7 +67,7 @@ public class Solver {
             for(Board b : minNode.board.neighbors()) {
                 if(minNode.prevNode != null &&
                 		b.equals(minNode.prevNode.board)) continue;
-                pq.insert(new Node(b, minNode.moves++, minNode, minNode.isTwin));
+                pq.insert(new Node(b, minNode.moves + 1, minNode, minNode.isTwin));
             }
         }
         if(steps != -1) return q;
