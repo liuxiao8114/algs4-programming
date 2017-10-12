@@ -1,0 +1,19 @@
+public interface ST {
+  void put(Key key, Value val);
+  Value get(Key key);
+  void delete(Key key);
+  boolean contains(Key key);
+  boolbean isEmpty();
+  int size();
+  Key min();
+  Key max();
+  Key floor(Key key);
+  Key ceiling(Key key);
+  int rank(Key key);
+  Key select(int k);
+  void deleteMin();
+  void deleteMax();
+  int size(Key lo, Key hi);
+  keys(Key lo, Key hi);
+  keys();
+}

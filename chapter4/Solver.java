@@ -2,12 +2,14 @@ import java.util.Comparator;
 
 import edu.princeton.cs.algs4.In;
 import edu.princeton.cs.algs4.MinPQ;
-import edu.princeton.cs.algs4.Queue;
+import edu.princeton.cs.algs4.Stack;
 import edu.princeton.cs.algs4.StdOut;
 
 public class Solver {
     private MinPQ<Node> pq;
     private int steps;
+    private boolean solverFlag = false;
+    private Iterable<Board> result;
 
     private class Node {
       final Board board;
@@ -41,12 +43,12 @@ public class Solver {
         steps = 0;
         pq.insert(new Node(initial, 0, null, false));
         pq.insert(new Node(initial.twin(), 0, null, true));
-        this.solution();
+        result = this.solution();
     }
 
     // is the initial board solvable?
     public boolean isSolvable() {
-      return solution() != null;
+      return result != null;
     }
 
     // min number of moves to solve initial board; -1 if unsolvable
@@ -56,10 +58,10 @@ public class Solver {
 
     // sequence of boards in a shortest solution; null if unsolvable
     public Iterable<Board> solution() {
-        Queue<Board> q = new Queue<Board>();
+    	if(solverFlag) return result;
+    	Node minNode = null;
         while(!pq.isEmpty()) {
-            Node minNode = pq.delMin();
-            q.enqueue(minNode.board);
+            minNode = pq.delMin();
             if(minNode.board.isGoal()) {
               steps = minNode.isTwin ? -1 : minNode.moves;
               break;
@@ -70,8 +72,15 @@ public class Solver {
                 pq.insert(new Node(b, minNode.moves + 1, minNode, minNode.isTwin));
             }
         }
-        if(steps != -1) return q;
-        return null;
+        solverFlag = true;
+        if(steps == -1) return null;
+        Stack<Board> q = new Stack<Board>();
+        do{
+        	q.push(minNode.board);
+        	minNode = minNode.prevNode;
+        } while(minNode != null);
+
+        return q;
     }
 
     public static void main(String[] args) {
@@ -91,9 +100,13 @@ public class Solver {
       if (!solver.isSolvable())
           StdOut.println("No solution possible");
       else {
-          StdOut.println("Minimum number of moves = " + solver.moves());
-          for (Board board : solver.solution())
+    	  int i = 0;
+          for (Board board : solver.solution()) {
+        	  i++;
               StdOut.println(board);
+          }
+          StdOut.println("Minimum number of moves = " + solver.moves());
+          StdOut.println("length of solution = " + i);
       }
     }// solve a slider puzzle (given below)
 }
