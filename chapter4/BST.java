@@ -88,4 +88,22 @@ public class BST<Key extends Comparable<Key>, Value> {
     if(t != null) return t;
     return x;
   }
+
+	public Key ceil(Key key) {
+		Node x = ceil(key, root);
+		if(x == null) return null;
+		return x.key;
+	}
+
+	private Node ceil(Key key, Node x) {
+		if(x == null) return null;
+		int cmp = key.compareTo(x.key);
+		if(cmp == 0) return x;
+		if(cmp > 0) return ceil(key, x.right);
+		else {
+			Node t = ceil(key, x.left);
+			if(t == null) return x;
+			return t;
+		}
+	}
 }
