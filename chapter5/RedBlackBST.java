@@ -15,3 +15,11 @@ private Node rotaitionRight(Node s) {
   s.color = RED;
   return h;
 }
+
+public void flip() {
+  
+}
+
+public Node put(Node ) {
+
+}

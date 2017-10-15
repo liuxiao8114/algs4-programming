@@ -3,7 +3,7 @@ public interface ST {
   Value get(Key key);
   void delete(Key key);
   boolean contains(Key key);
-  boolbean isEmpty();
+  boolean isEmpty();
   int size();
   Key min();
   Key max();
@@ -15,5 +15,5 @@ public interface ST {
   void deleteMax();
   int size(Key lo, Key hi);
   keys(Key lo, Key hi);
-  keys();
+  Key[] keys();
 }

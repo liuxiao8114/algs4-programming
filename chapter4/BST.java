@@ -8,12 +8,12 @@ public class BST<Key extends Comparable<Key>, Value> {
 		private Key key;
 		private Value val;
 		private Node left, right;
-    private int count;
+    	private int count;
 
 		public Node(Key key, Value val) {
 			this.key = key;
 			this.val = val;
-      this.count = 1;
+      		this.count = 1;
 		}
 	}
 
@@ -49,9 +49,9 @@ public class BST<Key extends Comparable<Key>, Value> {
 		int cmp = key.compareTo(x.key);
 		if(cmp > 0) x.right = put(x.right, key, val);
 		if(cmp < 0) x.left = put(x.left, key, val);
-	  else x.val = val;
-    count = 1 + size(x.right) + size(x.left);
-    return x;
+	  	else x.val = val;
+    	count = 1 + size(x.right) + size(x.left);
+    	return x;
 	}
 
 	private Node put(Node x, Key key, Value val, Node subx) {
@@ -63,31 +63,31 @@ public class BST<Key extends Comparable<Key>, Value> {
 		return x;
 	}
 
-  public int size() {
-    return size(root);
-  }
-
-  private int size(Node x) {
-    if(x == null) return 0;
-    return x.count;
-  }
-
-	public Key floor(Key key) {
-    Node x = floor(key, root);
-    if(x == null) return null;
-    return x.key;
+	public int size() {
+		return size(root);
 	}
 
-  public Node floor(Key key, Node x) {
-    if(x == null) return null;
+	private int size(Node x) {
+		if(x == null) return 0;
+		return x.count;
+	}
 
-    int cmp = key.compareTo(x.key);
-    if(cmp == 0) return x;
-    if(cmp < 0) return floor(key, x.left);
-    Node t = floor(key, x.right);
-    if(t != null) return t;
-    return x;
-  }
+	public Key floor(Key key) {
+	    Node x = floor(key, root);
+	    if(x == null) return null;
+	    return x.key;
+	}
+
+	public Node floor(Key key, Node x) {
+		if(x == null) return null;
+
+		int cmp = key.compareTo(x.key);
+		if(cmp == 0) return x;
+		if(cmp < 0) return floor(key, x.left);
+		Node t = floor(key, x.right);
+		if(t != null) return t;
+		return x;
+	}
 
 	public Key ceil(Key key) {
 		Node x = ceil(key, root);
@@ -105,5 +105,18 @@ public class BST<Key extends Comparable<Key>, Value> {
 			if(t == null) return x;
 			return t;
 		}
+	}
+
+	public Key min() {
+		Node x = root;
+		while(x.left != null) {
+			x = x.left;
+		}
+		return x;
+	}
+
+	private Key min(Node x) {
+		if(x.left == null) return null;
+		return x.left;
 	}
 }
