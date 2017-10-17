@@ -18,7 +18,7 @@ public class PointSET {
 
   // add the point to the set (if it is not already in the set)
   public void insert(Point2D p) {
-    if(rect == null) throw new IllegalArgumentException();
+    if(p == null) throw new IllegalArgumentException();
     if(!contains(p)) {
       rbset.add(p);
     }
@@ -26,7 +26,7 @@ public class PointSET {
 
   // does the set contain point p?
   public boolean contains(Point2D p){
-    if(rect == null) throw new IllegalArgumentException();
+    if(p == null) throw new IllegalArgumentException();
     return rbSet.contains(p);
   }
 
@@ -54,6 +54,8 @@ public class PointSET {
 
   // a nearest neighbor in the set to point p; null if the set is empty
   public Point2D nearest(Point2D p) {
+    if(p == null) throw new IllegalArgumentException();
+    
     Point2D bestP = iter.next();
     Iterator<Point2D> iter = rbSet.interator();
 
@@ -68,6 +70,6 @@ public class PointSET {
 
   // unit testing of the methods (optional)
   public static void main(String[] args) {
-    
+
   }
 }
