@@ -1,3 +1,11 @@
+import java.util.Iterator;
+
+import edu.princeton.cs.algs4.In;
+import edu.princeton.cs.algs4.Point2D;
+import edu.princeton.cs.algs4.Queue;
+import edu.princeton.cs.algs4.RectHV;
+import edu.princeton.cs.algs4.SET;
+
 public class PointSET {
   private SET<Point2D> rbSet;
 
@@ -20,7 +28,7 @@ public class PointSET {
   public void insert(Point2D p) {
     if(p == null) throw new IllegalArgumentException();
     if(!contains(p)) {
-      rbset.add(p);
+      rbSet.add(p);
     }
   }
 
@@ -32,7 +40,7 @@ public class PointSET {
 
   // draw all points to standard draw
   public void draw() {
-    Iterator<Point2D> iter = rbSet.interator();
+    Iterator<Point2D> iter = rbSet.iterator();
     while(iter.hasNext()) {
       iter.next().draw();
     }
@@ -42,7 +50,7 @@ public class PointSET {
   public Iterable<Point2D> range(RectHV rect) {
     if(rect == null) throw new IllegalArgumentException();
     Queue<Point2D> q = new Queue<Point2D>();
-    Iterator<Point2D> iter = rbSet.interator();
+    Iterator<Point2D> iter = rbSet.iterator();
     while(iter.hasNext()) {
       Point2D p = iter.next();
       if(rect.contains(p)) {
@@ -55,9 +63,9 @@ public class PointSET {
   // a nearest neighbor in the set to point p; null if the set is empty
   public Point2D nearest(Point2D p) {
     if(p == null) throw new IllegalArgumentException();
-    
+
+    Iterator<Point2D> iter = rbSet.iterator();
     Point2D bestP = iter.next();
-    Iterator<Point2D> iter = rbSet.interator();
 
     while(iter.hasNext()) {
       Point2D nextP = iter.next();
@@ -70,6 +78,14 @@ public class PointSET {
 
   // unit testing of the methods (optional)
   public static void main(String[] args) {
-
+	PointSET tree = new PointSET();
+    In in = new In(args[0]);
+    while (!in.isEmpty()) {
+        double x = in.readDouble();
+        double y = in.readDouble();
+        Point2D p = new Point2D(x, y);
+        tree.insert(p);
+    }
+    tree.draw();
   }
 }

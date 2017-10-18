@@ -1,7 +1,16 @@
+import java.util.Iterator;
+
+import edu.princeton.cs.algs4.In;
+import edu.princeton.cs.algs4.Point2D;
+import edu.princeton.cs.algs4.Queue;
+import edu.princeton.cs.algs4.RectHV;
+import edu.princeton.cs.algs4.SET;
+import edu.princeton.cs.algs4.StdDraw;
+
 public class KdTree {
   private SET<Node> rbSet;
 
-  private class Node {
+  private class Node implements Comparable<Node> {
     Node left;
     Node right;
     Point2D p;
@@ -9,7 +18,7 @@ public class KdTree {
     RectHV rect;
 
     public Node(Point2D p, boolean isCompX) {
-      Node(p, null, null, isCompX);
+      this(p, null, null, isCompX);
     }
 
     public Node(Point2D p, Node left, Node right, boolean isCompX) {
@@ -18,6 +27,12 @@ public class KdTree {
       this.left = left;
       this.right = right;
     }
+
+	@Override
+	public int compareTo(Node o) {
+		// TODO Auto-generated method stub
+		return 0;
+	}
   }
 
   // construct an empty set of points
@@ -41,25 +56,52 @@ public class KdTree {
 
     if(!contains(p)) {
       if(isEmpty()) {
-        Node n = new Node(p, true);
+        Node n = new Node(p, false);
+        n.rect = new RectHV(0, 0, 1, 1);
         rbSet.add(n);
       } else {
-        Node root = rbSet.interator().next();
+        Node root = rbSet.iterator().next();
         insert(p, root);
       }
     }
   }
 
+/*
+      xmin ymin xmax ymax
+                  root: 0     0     1     1
+l1:   0  0 r.x 1          r1: r.x   0     1     1
+l21:  0     0   r.x  l1.y     l22:  0   l1.y  r.x     1
+r21:  r.x   0     1  r1.y
+r22:  r.x r1.y    1     1
+l31:  0     0   l21.x  l31.y
+l32:  l21.x 0   r.x    l31.y
+l33:  0  l1.y   l22.x   1
+l34:
+r31:
+r32:
+r33:
+r34:
+*/
   private void insert(Point2D p, Node n) {
-    if((n.isCompX && p.x < n.p.x) || (!n.isCompX && p.y < n.p.y)) {
+    if((n.isCompX && p.x() < n.p.x()) || (!n.isCompX && p.y() < n.p.y())) {
       if(n.left == null) {
         Node x = new Node(p, !n.isCompX);
+        if(n.isCompX) {
+          x.rect = new RectHV(n.rect.xmin(), n.rect.ymin(), n.rect.xmax(), n.p.y());
+        } else {
+          x.rect = new RectHV(n.rect.xmin(), n.rect.ymin(), n.p.x(), n.rect.ymax());
+        }
         n.left = x;
         rbSet.add(x);
       } else insert(p, n.left);
     } else {
       if(n.right == null) {
         Node x = new Node(p, !n.isCompX);
+        if(n.isCompX) {
+          x.rect = new RectHV(n.rect.xmin(), n.p.y(), n.rect.xmax(), n.rect.ymax());
+        } else {
+          x.rect = new RectHV(n.p.x(), n.rect.ymin(), n.rect.xmax(), n.rect.ymax());
+        }
         n.right = x;
         rbSet.add(x);
       } else insert(p, n.right);
@@ -71,23 +113,37 @@ public class KdTree {
     if(p == null) throw new IllegalArgumentException();
     if(isEmpty()) return false;
 
-    Node root = rbSet.interator().next();
+    Node root = rbSet.iterator().next();
     return contains(p, root);
   }
 
   private boolean contains(Point2D p, Node x) {
     if(x == null) return false;
     int tmp = p.compareTo(x.p);
-    if(tmp < 0) return contains(p, iter.left);
-    if(tmp > 0) return contains(p, iter.right);
+    if(tmp < 0) return contains(p, x.left);
+    if(tmp > 0) return contains(p, x.right);
     return true;
   }
 
   // draw all points to standard draw
   public void draw() {
-    Iterator<Node> iter = rbSet.interator();
+    Iterator<Node> iter = rbSet.iterator();
     while(iter.hasNext()) {
-      iter.next().draw();
+      Node n = iter.next();
+      n.p.draw();
+
+      //draw debug lines
+      if(n.isCompX) {
+        StdDraw.setPenColor(StdDraw.BLUE);
+        StdDraw.line(n.rect.xmin(), n.p.y(), n.rect.xmax(), n.p.y());
+      } else {
+        StdDraw.setPenColor(StdDraw.RED);
+        StdDraw.line(n.p.x(), n.rect.ymin(), n.p.x(), n.rect.ymax());
+      }
+
+      //reset pen prop
+      StdDraw.setPenColor(StdDraw.BLACK);
+      StdDraw.setPenRadius();
     }
   }
 
@@ -96,35 +152,37 @@ public class KdTree {
     if(rect == null) throw new IllegalArgumentException();
 
     Queue<Point2D> q = new Queue<Point2D>();
-    Node root = rbSet.interator().next();
-    
-
-
-
-    if(rect.contains(p)) {
-      q.enqueue(p);
+    Node root = rbSet.iterator().next();
+    if(rect.intersects(root.rect)) {
+      range(rect, root, q);
     }
     return q;
+  }
+
+  private void range(RectHV rect, Node n, Queue<Point2D> q) {
+    if(rect.contains(n.p)) q.enqueue(n.p);
+    if(n.left != null && rect.intersects(n.left.rect)) range(rect, n.left, q);
+    if(n.right != null && rect.intersects(n.right.rect)) range(rect, n.right, q);
   }
 
   // a nearest neighbor in the set to point p; null if the set is empty
   public Point2D nearest(Point2D p) {
     if(p == null) throw new IllegalArgumentException();
 
-    Point2D bestP = iter.next();
-    Iterator<Point2D> iter = rbSet.interator();
-
-    while(iter.hasNext()) {
-      Point2D nextP = iter.next();
-      if(bestP.distanceTo(p) > nextP.distanceTo(p)) {
-        bestP = nextP;
-      }
-    }
-    return bestP;
+    return null;
   }
 
   // unit testing of the methods (optional)
   public static void main(String[] args) {
+	KdTree tree = new KdTree();
+    In in = new In(args[0]);
+    while (!in.isEmpty()) {
+        double x = in.readDouble();
+        double y = in.readDouble();
+        Point2D p = new Point2D(x, y);
+        tree.insert(p);
+    }
 
+    tree.draw();
   }
 }
