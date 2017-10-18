@@ -28,11 +28,14 @@ public class KdTree {
       this.right = right;
     }
 
-	@Override
-	public int compareTo(Node o) {
-		// TODO Auto-generated method stub
-		return 0;
-	}
+    @Override
+    public int compareTo(Node n) {
+      if(this.p.x() > n.p.x()) return 1;
+      if(this.p.x() < n.p.x()) return -1;
+      if(this.p.y() > n.p.y()) return 1;
+      if(this.p.y() < n.p.y()) return -1;
+      return 0;
+    }
   }
 
   // construct an empty set of points
@@ -42,7 +45,7 @@ public class KdTree {
 
   // is the set empty?
   public boolean isEmpty() {
-    return rbSet != null && size() != 0;
+    return rbSet == null || size() == 0;
   }
 
   // number of points in the set
@@ -83,7 +86,7 @@ r33:
 r34:
 */
   private void insert(Point2D p, Node n) {
-    if((n.isCompX && p.x() < n.p.x()) || (!n.isCompX && p.y() < n.p.y())) {
+    if((n.isCompX && Point2D.Y_ORDER.compare(p, n.p) < 0) || (!n.isCompX && Point2D.X_ORDER.compare(p, n.p) < 0)) {
       if(n.left == null) {
         Node x = new Node(p, !n.isCompX);
         if(n.isCompX) {
@@ -112,9 +115,12 @@ r34:
   public boolean contains(Point2D p) {
     if(p == null) throw new IllegalArgumentException();
     if(isEmpty()) return false;
-
-    Node root = rbSet.iterator().next();
-    return contains(p, root);
+    Iterator<Node>iter = rbSet.iterator(); 
+    if(iter.hasNext()) {
+        Node root = rbSet.iterator().next();
+        return contains(p, root);
+    }
+    return false;
   }
 
   private boolean contains(Point2D p, Node x) {
@@ -174,15 +180,14 @@ r34:
 
   // unit testing of the methods (optional)
   public static void main(String[] args) {
-	KdTree tree = new KdTree();
+  KdTree tree = new KdTree();
     In in = new In(args[0]);
     while (!in.isEmpty()) {
         double x = in.readDouble();
         double y = in.readDouble();
         Point2D p = new Point2D(x, y);
         tree.insert(p);
+        tree.draw();
     }
-
-    tree.draw();
   }
 }
