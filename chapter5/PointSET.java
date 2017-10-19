@@ -16,7 +16,7 @@ public class PointSET {
 
   // is the set empty?
   public boolean isEmpty() {
-    return rbSet != null && size() != 0;
+    return rbSet == null || size() == 0;
   }
 
   // number of points in the set
