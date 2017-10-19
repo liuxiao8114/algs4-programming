@@ -38,6 +38,12 @@ public class KdTree {
       if(this.p.y() < n.p.y()) return -1;
       return 0;
     }
+    
+    @Override
+    public String toString() {
+    return this.p.toString();
+      
+    }
   }
 
   // construct an empty set of points
@@ -106,10 +112,12 @@ public class KdTree {
 
   private boolean contains(Point2D p, Node x) {
     if(x == null) return false;
-    int tmp = p.compareTo(x.p);
-    if(tmp < 0) return contains(p, x.left);
-    if(tmp > 0) return contains(p, x.right);
-    return true;
+    if(p.equals(x.p)) return true;
+    if((x.isCompX && Point2D.Y_ORDER.compare(p, x.p) < 0) 
+        || (!x.isCompX && Point2D.X_ORDER.compare(p, x.p) < 0))
+      return contains(p, x.left);
+    else 
+      return contains(p, x.right);
   }
 
   // draw all points to standard draw
@@ -122,11 +130,11 @@ public class KdTree {
 
       //draw debug lines
       if(n.isCompX) {
-    	StdDraw.setPenRadius();
+      StdDraw.setPenRadius();
         StdDraw.setPenColor(StdDraw.BLUE);
         StdDraw.line(n.rect.xmin(), n.p.y(), n.rect.xmax(), n.p.y());
       } else {
-    	StdDraw.setPenRadius();
+      StdDraw.setPenRadius();
         StdDraw.setPenColor(StdDraw.RED);
         StdDraw.line(n.p.x(), n.rect.ymin(), n.p.x(), n.rect.ymax());
       }
@@ -161,34 +169,34 @@ public class KdTree {
   }
 
   private Point2D nearest(Point2D p, Point2D current, Node x) {
-	double curToP = current.distanceTo(p);
-	if(x == null) return current;
-	if(x.rect.distanceTo(p) > curToP) return current;
+  double curToP = current.distanceTo(p);
+  if(x == null) return current;
+  if(x.rect.distanceTo(p) > curToP) return current;
 
-	int tmp = x.p.compareTo(p);
+  int tmp = x.p.compareTo(p);
 
-	if(curToP < x.p.distanceTo(p)) {
-		if(tmp < 0 && x.right != null && x.right.rect.distanceTo(p) > curToP) {
-			return nearest(p, current, x.left);
-		}
+  if(curToP < x.p.distanceTo(p)) {
+    if(tmp < 0 && x.right != null && x.right.rect.distanceTo(p) > curToP) {
+      return nearest(p, current, x.left);
+    }
 
-		if(tmp > 0 && x.left != null && x.left.rect.distanceTo(p) > curToP) {
-			return nearest(p, current, x.right);
-		}
+    if(tmp > 0 && x.left != null && x.left.rect.distanceTo(p) > curToP) {
+      return nearest(p, current, x.right);
+    }
 
-		if(tmp < 0) return nearest(p, nearest(p, current, x.left), x.right);
-		return nearest(p, nearest(p, current, x.right), x.left);
-	} else {
-		if(tmp < 0 && x.right != null && x.right.rect.distanceTo(p) > curToP) {
-			return nearest(p, x.p, x.left);
-		}
+    if(tmp < 0) return nearest(p, nearest(p, current, x.left), x.right);
+    return nearest(p, nearest(p, current, x.right), x.left);
+  } else {
+    if(tmp < 0 && x.right != null && x.right.rect.distanceTo(p) > curToP) {
+      return nearest(p, x.p, x.left);
+    }
 
-		if(tmp > 0 && x.left != null && x.left.rect.distanceTo(p) > curToP) {
-			return nearest(p, x.p, x.right);
-		}
-		if(tmp < 0) return nearest(p, nearest(p, x.p, x.right), x.left);
-		return nearest(p, nearest(p, x.p, x.right), x.left);
-	}
+    if(tmp > 0 && x.left != null && x.left.rect.distanceTo(p) > curToP) {
+      return nearest(p, x.p, x.right);
+    }
+    if(tmp < 0) return nearest(p, nearest(p, x.p, x.right), x.left);
+    return nearest(p, nearest(p, x.p, x.right), x.left);
+  }
   }
 
   // unit testing of the methods (optional)
@@ -203,5 +211,6 @@ public class KdTree {
     }
     System.out.println(tree.size());
     tree.draw();
+    System.out.println(tree.contains(new Point2D(0.2, 0.3)));
   }
 }
