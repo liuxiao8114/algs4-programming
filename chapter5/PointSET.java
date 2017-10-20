@@ -64,6 +64,10 @@ public class PointSET {
   public Point2D nearest(Point2D p) {
     if(p == null) throw new IllegalArgumentException();
 
+    if(isEmpty()) {
+    	return null;
+    }
+
     Iterator<Point2D> iter = rbSet.iterator();
     Point2D bestP = iter.next();
 

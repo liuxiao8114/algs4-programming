@@ -10,7 +10,6 @@ import edu.princeton.cs.algs4.StdDraw;
 public class KdTree {
   private SET<Node> rbSet;
   private Node n;
-  private int N;
 
   private class Node implements Comparable<Node> {
     Node left;
@@ -38,18 +37,17 @@ public class KdTree {
       if(this.p.y() < n.p.y()) return -1;
       return 0;
     }
-    
+
     @Override
     public String toString() {
     return this.p.toString();
-      
+
     }
   }
 
   // construct an empty set of points
   public KdTree() {
     this.rbSet = new SET<Node>();
-    this.N = 0;
   }
 
   // is the set empty?
@@ -113,10 +111,10 @@ public class KdTree {
   private boolean contains(Point2D p, Node x) {
     if(x == null) return false;
     if(p.equals(x.p)) return true;
-    if((x.isCompX && Point2D.Y_ORDER.compare(p, x.p) < 0) 
+    if((x.isCompX && Point2D.Y_ORDER.compare(p, x.p) < 0)
         || (!x.isCompX && Point2D.X_ORDER.compare(p, x.p) < 0))
       return contains(p, x.left);
-    else 
+    else
       return contains(p, x.right);
   }
 
@@ -150,7 +148,9 @@ public class KdTree {
     if(rect == null) throw new IllegalArgumentException();
 
     Queue<Point2D> q = new Queue<Point2D>();
-    range(rect, n, q);
+    if(!isEmpty()) {
+        range(rect, n, q);
+    }
     return q;
   }
 
@@ -168,40 +168,46 @@ public class KdTree {
     return nearest(p, n.p, n);
   }
 
-  private Point2D nearest(Point2D p, Point2D current, Node x) {
-  double curToP = current.distanceTo(p);
-  if(x == null) return current;
-  if(x.rect.distanceTo(p) > curToP) return current;
-
-  int tmp = x.p.compareTo(p);
-
-  if(curToP < x.p.distanceTo(p)) {
-    if(tmp < 0 && x.right != null && x.right.rect.distanceTo(p) > curToP) {
-      return nearest(p, current, x.left);
-    }
-
-    if(tmp > 0 && x.left != null && x.left.rect.distanceTo(p) > curToP) {
-      return nearest(p, current, x.right);
-    }
-
-    if(tmp < 0) return nearest(p, nearest(p, current, x.left), x.right);
-    return nearest(p, nearest(p, current, x.right), x.left);
-  } else {
-    if(tmp < 0 && x.right != null && x.right.rect.distanceTo(p) > curToP) {
-      return nearest(p, x.p, x.left);
-    }
-
-    if(tmp > 0 && x.left != null && x.left.rect.distanceTo(p) > curToP) {
-      return nearest(p, x.p, x.right);
-    }
-    if(tmp < 0) return nearest(p, nearest(p, x.p, x.right), x.left);
-    return nearest(p, nearest(p, x.p, x.right), x.left);
+  private double squre(double x) {
+	  return x * x;
   }
+
+  private Point2D nearest(Point2D p, Point2D current, Node x) {
+	  if(x == null) return current;
+    double curToP = current.distanceTo(p);
+	  if(x.rect.distanceSquaredTo(p) > squre(curToP)) return current;
+
+	  int tmp = x.isCompX ? Point2D.Y_ORDER.compare(p, x.p)
+			  : Point2D.X_ORDER.compare(p, x.p);
+
+	  System.out.println("called: " + x.p);
+	  Point2D nextPoint = curToP > x.p.distanceTo(p) ? x.p : current;
+	  curToP = nextPoint.distanceTo(p);
+
+//    if(x.left == null && x.right == null) return nextPoint;
+//   if(x.left != null && x.right == null) return nearest(p, nextPoint, x.left);
+//    if(x.left == null && x.right != null) return nearest(p, nextPoint, x.right);
+
+    if(!x.rect.contains(p) && x.left != null && x.right != null) {
+      Node tempNode = x.right.rect.distanceSquaredTo(p) > x.left.rect.distanceSquaredTo(p) ? x.left : x.right;
+      return nearest(p, nextPoint, tempNode);
+    }
+
+    if(tmp < 0 && x.right != null && x.right.rect.distanceSquaredTo(p) > squre(curToP)) {
+      return nearest(p, nextPoint, x.left);
+    }
+
+    if(tmp > 0 && x.left != null && x.left.rect.distanceSquaredTo(p) > squre(curToP)) {
+      return nearest(p, nextPoint, x.right);
+    }
+
+    if(tmp < 0) return nearest(p, nearest(p, nextPoint, x.left), x.right);
+    return nearest(p, nearest(p, nextPoint, x.right), x.left);
   }
 
   // unit testing of the methods (optional)
   public static void main(String[] args) {
-  KdTree tree = new KdTree();
+	KdTree tree = new KdTree();
     In in = new In(args[0]);
     while (!in.isEmpty()) {
         double x = in.readDouble();
@@ -209,8 +215,7 @@ public class KdTree {
         Point2D p = new Point2D(x, y);
         tree.insert(p);
     }
-    System.out.println(tree.size());
     tree.draw();
-    System.out.println(tree.contains(new Point2D(0.2, 0.3)));
+    System.out.println("nearest point is: " + tree.nearest(new Point2D(0.87, 0.39)));
   }
 }
