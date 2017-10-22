@@ -56,8 +56,8 @@ public class Deque<Item> implements Iterable<Item> {
 		   last.next = null;
 		   last.item = item;
 		   last.prev = oldLast;
+		   dequeSize++;
 	   }
-	   dequeSize++;
    }   
    
    // remove and return the item from the front
@@ -124,9 +124,25 @@ public class Deque<Item> implements Iterable<Item> {
 	   return new DequeIterator();
 	   
    }
+   
    // unit testing (optional)
    public static void main(String[] args) {
-	   Deque<String> q = new Deque<String>();
-	   
+		Deque<String> queue = new Deque<String>();
+		int n = 0;
+
+		int k = Integer.parseInt(args[0]);
+		while (!StdIn.isEmpty()) {
+		    String item = StdIn.readString();
+		    queue.enqueue(item);
+		    n++;
+		}
+
+		assert(k <= n);
+
+		Iterator<String> iter = queue.iterator();
+
+		for(int i = 0; iter.hasNext() && (i < k); i++) {
+			StdOut.println(iter.next() + " ");
+		}
    }
 }
