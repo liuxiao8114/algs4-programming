@@ -9,31 +9,39 @@ public class FastCollinearPoints {
 	private Point[] points;
 	private LineSegment[] lines;
 	private int lineSize = 0;
-	
+
 	// finds all line segments containing 4 or more points
 	public FastCollinearPoints(Point[] points) {
 		this.points = points;
-	}    
+		this.lines = segments();
+	}
 	// the number of line segments
 	public int numberOfSegments() {
 		return this.lineSize;
 	}
-	
+
 	// the line segments
 	public LineSegment[] segments() {
+		if(lines != null) return this.lines;
+
 		int len = points.length;
 		LineSegment[] temp = new LineSegment[len];
 		Point[] pointsCopy = points.clone();
+
+		//Sort the given points by Y-ORDER(make the check sequence)
 		Arrays.sort(pointsCopy);
 		for(int i = 0; i < len; i++) {
 			Point[] subCopy = pointsCopy.clone();
 			Point p0 = subCopy[i];
+
+			//Sort the others by slopeOrder to the check point
 			Arrays.sort(subCopy, p0.slopeOrder());
 			int lt = 1, ht = lt + 1;
+
 			while(ht < len) {
 				if(subCopy[lt].slopeTo(p0) < subCopy[ht].slopeTo(p0)) {
 					int size = ht - lt + 1;
-					if(size < 4) { 
+					if(size < 4) {
 						lt = ht;
 						ht = lt + 1;
 						continue;
@@ -41,11 +49,11 @@ public class FastCollinearPoints {
 						//make a line
 						Point[] ret = new Point[size];
 						//add the p0 while there is a line
-						ret[0] = p0;	
+						ret[0] = p0;
 						for(int k = 1; k < size; k++) {
 							ret[k] = subCopy[lt + k - 1];
 						}
-						
+
 						Arrays.sort(ret);
 						if(ret[0] == p0) {
 							LineSegment line = new LineSegment(ret[0], ret[size - 1]);
@@ -58,13 +66,13 @@ public class FastCollinearPoints {
 					ht++;
 				}
 			}
-			
+
 			if(ht - lt >= 3) {
 				int size = ht - lt + 1;
 				Point[] ret = new Point[size];
-				
+
 				ret[0] = p0;
-				
+
 				for(int k = 1; k < size; k++) {
 					ret[k] = subCopy[lt + k - 1];
 				}
@@ -76,16 +84,16 @@ public class FastCollinearPoints {
 				}
 			}
 		}
-		
+
 		this.lines = new LineSegment[lineSize];
-		
+
 		for(int i = 0; i < lineSize; i++) {
 			lines[i] = temp[i];
 		}
-		
+
 		return lines;
 	}
-	
+
 	public static void main(String[] args) {
 
 	    // read the n points from a file

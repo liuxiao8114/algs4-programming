@@ -9,29 +9,32 @@ public class BruteCollinearPoints {
 	private Point[] points;
 	private LineSegment[] lines;
 	private int lineSize = 0;
-	
+
 	// finds all line segments containing 4 points
 	public BruteCollinearPoints(Point[] points) {
 		if(points == null) throw new IllegalArgumentException("null array");
-		
+
 		for(int i = 0; i < points.length; i++) {
 			if(points[i] == null) throw new IllegalArgumentException("have null item");
 			for(int j = i + 1; j < points.length; j++) {
-				if(points[i].compareTo(points[j]) == 0) 
-					throw new IllegalArgumentException("have repeated points");	
+				if(points[i].compareTo(points[j]) == 0)
+					throw new IllegalArgumentException("have repeated points");
 			}
 		}
-		
+
 		this.points = points;
+		this.lines = segments();
 	}
-	
+
 	// the number of line segments
 	public int numberOfSegments() {
 		return lineSize;
 	}
-	
+
 	// the line segments
 	public LineSegment[] segments() {
+		if(this.lines != null) return this.lines;
+
 		int len = points.length;
 		LineSegment[] temp = new LineSegment[points.length];
 		for(int i = 0; i < len - 3; i++) {
@@ -55,29 +58,29 @@ public class BruteCollinearPoints {
 				}
 			}
 		}
-		
+
 		lines = new LineSegment[lineSize];
 		for(int i = 0; i < lineSize; i++) {
 			lines[i] = temp[i];
 		}
-		
+
 		return lines;
 	}
-	
+
 	public static void main(String[] args) {
-		int[] p = new In("D:\\eclipseWorkspace\\algs-test-data\\collinear\\input20.txt").readAllInts();
-		Point[] points = new Point[p.length / 2];
-		int j = 0;
-		for(int i = 0; i < p.length; i++) {
-			if(i % 2 == 1) points[j++] = new Point(p[i - 1], p[i]); 
+		In in = new In(args[0]);
+		Point[] points = new Point[in.readInt()];
+		int i = 0;
+		while(!in.isEmpty()) {
+			points[i++] = new Point(in.readInt(), in.readInt());
 		}
-		
-		BruteCollinearPoints bcp = new BruteCollinearPoints(points);
-		LineSegment[] lines = bcp.segments();
-		
+
+		BruteCollinearPoints collinear = new BruteCollinearPoints(points);
+		LineSegment[] lines = collinear.segments();
+		lines = collinear.segments();
+
 		for(LineSegment l : lines) {
 			StdOut.print(l.toString() + " ");
 		}
-		
 	}
 }

@@ -76,7 +76,8 @@ public class KdTree {
   }
 
   private void insert(Point2D p, Node n) {
-    if((n.isCompX && Point2D.Y_ORDER.compare(p, n.p) < 0) || (!n.isCompX && Point2D.X_ORDER.compare(p, n.p) < 0)) {
+    if((n.isCompX && Point2D.Y_ORDER.compare(p, n.p) < 0)
+    		|| (!n.isCompX && Point2D.X_ORDER.compare(p, n.p) < 0)) {
       if(n.left == null) {
         Node x = new Node(p, !n.isCompX);
         if(n.isCompX) {
@@ -174,7 +175,7 @@ public class KdTree {
 
   private Point2D nearest(Point2D p, Point2D current, Node x) {
 	  if(x == null) return current;
-    double curToP = current.distanceTo(p);
+	  double curToP = current.distanceTo(p);
 	  if(x.rect.distanceSquaredTo(p) > squre(curToP)) return current;
 
 	  int tmp = x.isCompX ? Point2D.Y_ORDER.compare(p, x.p)
@@ -189,8 +190,11 @@ public class KdTree {
 //    if(x.left == null && x.right != null) return nearest(p, nextPoint, x.right);
 
     if(!x.rect.contains(p) && x.left != null && x.right != null) {
-      Node tempNode = x.right.rect.distanceSquaredTo(p) > x.left.rect.distanceSquaredTo(p) ? x.left : x.right;
-      return nearest(p, nextPoint, tempNode);
+      if (x.right.rect.distanceSquaredTo(p) > x.left.rect.distanceSquaredTo(p)) {
+    	  return nearest(p, nearest(p, nextPoint, x.left), x.right);
+      } else {
+    	  return nearest(p, nearest(p, nextPoint, x.right), x.left);
+      }
     }
 
     if(tmp < 0 && x.right != null && x.right.rect.distanceSquaredTo(p) > squre(curToP)) {
@@ -216,6 +220,6 @@ public class KdTree {
         tree.insert(p);
     }
     tree.draw();
-    System.out.println("nearest point is: " + tree.nearest(new Point2D(0.87, 0.39)));
+    System.out.println("nearest point is: " + tree.nearest(new Point2D(0.99, 0.2)));
   }
 }
