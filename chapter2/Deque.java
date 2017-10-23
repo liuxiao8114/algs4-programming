@@ -1,6 +1,8 @@
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
+import edu.princeton.cs.algs4.StdOut;
+
 public class Deque<Item> implements Iterable<Item> {
 	private Node first;
 	private Node last;
@@ -56,8 +58,9 @@ public class Deque<Item> implements Iterable<Item> {
 		   last.next = null;
 		   last.item = item;
 		   last.prev = oldLast;
+		   oldLast.next = last;
+		   dequeSize++;
 	   }
-	   dequeSize++;
    }   
    
    // remove and return the item from the front
@@ -124,9 +127,32 @@ public class Deque<Item> implements Iterable<Item> {
 	   return new DequeIterator();
 	   
    }
+   
    // unit testing (optional)
    public static void main(String[] args) {
-	   Deque<String> q = new Deque<String>();
-	   
+		Deque<Integer> deque = new Deque<Integer>();
+		int n = 0;
+/*
+		int k = Integer.parseInt(args[0]);
+		while (!StdIn.isEmpty()) {
+		    String item = StdIn.readString();
+		    queue.enqueue(item);
+		    n++;
+		}
+		assert(k <= n);
+
+		Iterator<Integer> iter = deque.iterator();
+
+		for(int i = 0; iter.hasNext() && (i < k); i++) {
+			StdOut.println(iter.next() + " ");
+		}	
+
+*/
+		 deque.addLast(0);
+         StdOut.println(deque.isEmpty());
+         deque.addLast(2);
+         StdOut.println(deque.removeFirst());
+         StdOut.println(deque.isEmpty());
+
    }
 }

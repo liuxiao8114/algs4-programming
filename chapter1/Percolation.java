@@ -1,5 +1,4 @@
 import edu.princeton.cs.algs4.In;
-import edu.princeton.cs.algs4.StdIn;
 import edu.princeton.cs.algs4.WeightedQuickUnionUF;
 
 public class Percolation {
@@ -24,7 +23,6 @@ public class Percolation {
 		
 		openStates[0] = true;
 		openStates[N * N + 1] = true;
-
 	}
 	
 	private int transToIndex(int row, int col) {
@@ -32,56 +30,61 @@ public class Percolation {
 	}
 	
 	public void open(int row, int col) {
-		if(row <= 0 || col <= 0) {
-			throw new IllegalArgumentException("both row and col must be 1 at least");
+		if(row <= 0 || col <= 0 || row > N || col > N) {
+			throw new IllegalArgumentException("both row and col must be 1 at least and can't be over size");
 		}
 		
-		int index = transToIndex(row, col);
-		openStates[index] = true;
-		
-		boolean haveTop = row > 1,
-				haveBottom = row < N,
-				haveLeft = col > 1,
-				haveRight = col < N;
-		
-		if(haveTop && isOpen(row - 1, col)) {
-			uf.union(index, transToIndex(row - 1, col));
+		if(!isOpen(row, col)) {
+			int index = transToIndex(row, col);
+			openCounts++;
+			openStates[index] = true;
+			
+			boolean haveTop = row > 1,
+					haveBottom = row < N,
+					haveLeft = col > 1,
+					haveRight = col < N;
+			
+			if(haveTop && isOpen(row - 1, col)) {
+				uf.union(index, transToIndex(row - 1, col));
+			}
+			
+			if(haveBottom && isOpen(row + 1, col)) {
+				uf.union(index, transToIndex(row + 1, col));
+			}
+			
+			if(haveLeft && isOpen(row, col - 1)) {
+				uf.union(index, transToIndex(row, col - 1)); 
+			}
+			
+			if(haveRight && isOpen(row, col + 1)) {
+				uf.union(index, transToIndex(row, col + 1)); 
+			}
+			
+			if(row == 1 || row == N) {
+				if(row == N) {
+					uf.union(size - 1, index);	
+				} 
+
+				if(row == 1) {
+					uf.union(0, index);
+				}	
+			}
 		}
-		
-		if(haveBottom && isOpen(row + 1, col)) {
-			uf.union(index, transToIndex(row + 1, col));
-		}
-		
-		if(haveLeft && isOpen(row, col - 1)) {
-			uf.union(index, transToIndex(row, col - 1)); 
-		}
-		
-		if(haveRight && isOpen(row, col + 1)) {
-			uf.union(index, transToIndex(row, col + 1)); 
-		}
-		
-		if(row == 1) {
-			uf.union(0, index);
-		} else if(row == N){
-			uf.union(size - 1, index);
-		}
-		
-		openCounts++;
 	}
 	
 	public boolean isOpen(int row, int col) {
-		if(row <= 0 || col <= 0) {
-			throw new IllegalArgumentException("both row and col must be 1 at least");
+		if(row <= 0 || col <= 0 || row > N || col > N) {
+			throw new IllegalArgumentException("both row and col must be 1 at least and can't be over size");
 		}
 		
 		return openStates[transToIndex(row, col)];
 	}
 	
 	public boolean isFull(int row, int col) {
-		if(row <= 0 || col <= 0) {
-			throw new IllegalArgumentException("both row and col must be 1 at least");
+		if(row <= 0 || col <= 0 || row > N || col > N) {
+			throw new IllegalArgumentException("both row and col must be 1 at least and can't be over size");
 		}
-		
+
 		return uf.connected(0, transToIndex(row, col));
 	}
 	
@@ -98,7 +101,7 @@ public class Percolation {
 	}
 	
 	public static void main(String[] args) {
-		int[] lists = new In("f:\\workspace\\percolation\\heart25.txt").readAllInts();
+		int[] lists = new In("C:\\workspace\\algs4-test-data\\percolation\\heart25.txt").readAllInts();
 		int row = 0, col = 0;
 		Percolation p = new Percolation(lists[0]);
 		
@@ -111,7 +114,7 @@ public class Percolation {
 			}
 		}
 		
-		p.percolates();
+		System.out.println(p.percolates());
 	}
 }
 
