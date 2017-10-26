@@ -1,9 +1,12 @@
+import edu.princeton.cs.algs4.In;
+import edu.princeton.cs.algs4.StdOut;
+
 public class DepthFirstSearch {
   private boolean[] marked;
   private int count;
 
   public DepthFirstSearch(Graph g, int s) {
-    this.marked = new Boolean[g.V()];
+    this.marked = new boolean[g.V()];
     validateVertex(s);
     dfs(g, s);
   }

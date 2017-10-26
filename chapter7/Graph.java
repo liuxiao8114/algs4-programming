@@ -1,8 +1,11 @@
+import edu.princeton.cs.algs4.Bag;
+import edu.princeton.cs.algs4.In;
+import edu.princeton.cs.algs4.StdOut;
+
 public class Graph {
   private final int V;
   private int E;
   private Bag<Integer>[] adj;
-  private boolean
 
   public Graph(int v) {
     this.V = v;
@@ -31,8 +34,8 @@ public class Graph {
   }
 
   //deep copy from other Graph
-  public Graph(Graph G) {
-
+  public Graph copy(Graph G) {
+	  return null;
   }
 
   public void addEdge(int v, int w) {
