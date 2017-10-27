@@ -2,48 +2,40 @@ import edu.princeton.cs.algs4.In;
 import edu.princeton.cs.algs4.Stack;
 import edu.princeton.cs.algs4.StdOut;
 
-public class DepthFirstPaths {
+public class DepthFirstDirectedPaths {
   private boolean[] marked;
   private int[] edgeTo;
-  private final int s;
+  private int s;
 
-  public DepthFirstPaths(Graph g, int s) {
-    this.s = s;
+  public DepthFirstDirectedPaths(DiGraph g, int s) {
     marked = new boolean[g.V()];
     edgeTo = new int[g.V()];
     for(int i = 0; i < g.V(); i++) {
-    	edgeTo[i] = Integer.MAX_VALUE;
+      edgeTo[i] = Integer.MAX_VALUE;
     }
+    this.s = s;
     dfs(g, s);
   }
 
-  public void dfs(Graph g, int v) {
+  private void dfs(DiGraph g, int v) {
     marked[v] = true;
-    for(int i : g.adj(v)) {
-      if(!marked[i]) {
-        dfs(g, i);
-        edgeTo[i] = v;
+    for(int w : g.adj(v)) {
+      if(!marked[w]){
+        edgeTo[w] = v;
+        dfs(g, w);
       }
     }
   }
 
-  private void validateVertex(int v) {
-    int V = marked.length;
-    if (v < 0 || v >= V)
-        throw new IllegalArgumentException("vertex " + v + " is not between 0 and " + (V-1));
-  }
-
   public boolean hasPathTo(int v) {
-    validateVertex(v);
     return marked[v];
   }
 
   public Iterable<Integer> pathTo(int v) {
-    validateVertex(v);
-    if(!hasPathTo(v)) return null;
+    int x;
     Stack<Integer> s = new Stack<Integer>();
-    for(int x = v; x != this.s; x = edgeTo[x]) {
-      if(marked[x]) s.push(x);
+    for(x = v; x != this.s; x = edgeTo[x]) {
+      s.push(x);
     }
     s.push(this.s);
     return s;
@@ -51,9 +43,9 @@ public class DepthFirstPaths {
 
   public static void main(String[] args) {
     In in = new In(args[0]);
-    Graph G = new Graph(in);
+    DiGraph G = new DiGraph(in);
     int s = 1;
-    DepthFirstPaths d = new DepthFirstPaths(G, s);
+    DepthFirstDirectedPaths d = new DepthFirstDirectedPaths(G, s);
     if(d.hasPathTo(6)) {
       for(int v: d.pathTo(6)) {
         StdOut.println(v + " -> " + s);

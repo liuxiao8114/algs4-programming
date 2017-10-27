@@ -1,3 +1,8 @@
+import edu.princeton.cs.algs4.In;
+import edu.princeton.cs.algs4.Queue;
+import edu.princeton.cs.algs4.Stack;
+import edu.princeton.cs.algs4.StdOut;
+
 public class BreadthFirstPaths {
   private boolean[] marked;
   private int[] disTo;
@@ -17,14 +22,13 @@ public class BreadthFirstPaths {
     marked[s] = true;
 
     for(int v = 0; v < g.V(); v++) {
-      disTo[v] = INFINITY;
+      disTo[v] = Integer.MAX_VALUE;
     }
 
     disTo[s] = 0;
     q.enqueue(s);
     while(!q.isEmpty()) {
       int x = q.dequeue();
-      i++;
       for(int v : g.adj(x)) {
         if(!marked[v]) {
           marked[v] = true;
@@ -50,5 +54,20 @@ public class BreadthFirstPaths {
     }
     s.push(x);
     return s;
+  }
+
+  public static void main(String[] args) {
+    In in = new In(args[0]);
+    Graph G = new Graph(in);
+    int s = 1;
+    BreadthFirstPaths d = new BreadthFirstPaths(G, s);
+    if(d.hasPathTo(249)) {
+      for(int v: d.pathTo(249)) {
+        StdOut.println(v + " -> " + s);
+        s = v;
+      }
+    } else {
+      StdOut.println("not connected!");
+    }
   }
 }

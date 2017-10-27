@@ -1,3 +1,6 @@
+import edu.princeton.cs.algs4.In;
+import edu.princeton.cs.algs4.StdOut;
+
 public class CC {
   private int[] ids;
   private boolean[] marked;
@@ -6,25 +9,30 @@ public class CC {
   public CC(Graph g) {
     marked = new boolean[g.V()];
     ids = new int[g.V()];
-    for(int v = 0; v > g.V(); v++) {
+    for(int v = 0; v < g.V(); v++) {
       if(!marked[v]) {
+    	ids[v] = count++;
         dfs(g, v);
-        count++;
       }
     }
   }
 
   public void dfs(Graph g, int v) {
     marked[v] = true;
-    ids[w] = count;
     for(int w : g.adj(v)) {
       if(!marked[w]) {
+    	ids[w] = ids[v];
         dfs(g, w);
       }
     }
   }
 
-  public void tailedDFS(Graph g, int v, int sum) {
-
+  public static void main(String[] args) {
+    In in = new In(args[0]);
+    Graph G = new Graph(in);
+    CC c = new CC(G);
+    for(int i = 0; i < c.ids.length; i++) {
+    	StdOut.println(c.ids[i]);
+    }
   }
 }
