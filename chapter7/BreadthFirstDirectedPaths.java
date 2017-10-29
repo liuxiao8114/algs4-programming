@@ -48,7 +48,7 @@ public class BreadthFirstDirectedPaths {
         if(!marked[w]) {
           q.enqueue(w);
           disTo[w] = disTo[x] + 1;
-        }
+        } 
       }
       disTo[x]
     }
