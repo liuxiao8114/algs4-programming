@@ -3,28 +3,33 @@ import edu.princeton.cs.algs4.In;
 
 public class WordNet {
    private Digraph synsetsG;
-   private Digraph hypernymsG;
+   private Bag<String>[] nouns;
 
    // constructor takes the name of the two input files
    public WordNet(String synsets, String hypernyms) {
-     In inSynsets = new In(synsets);
-     In inHypernyms = new In(hypernyms);
+      In inSynsets = new In(synsets);
+      In inHypernyms = new In(hypernyms);
 
-     String[] lines = inSynsets.readAll().split("\r\n");
-     int length = lines.length;
-     String[] ids = new String[length];
+      String[] lines = inSynsets.readAll().split("\r\n");
+      int length = lines.length;
 
-     Bag<String> nouns = new Bag<String>();
-     String[] temp = new String[3];
-     for(int i = 0; i < length; i++) {
-       temp = lines[i].split(",");
-       ids[i] = Integer.parseInt(temp[0]);
-       
-     }
+      this.synsetsG = new Digraph(length);
+      this.nouns = new Bag<String>[length];
 
+      for(int i = 0; i < length; i++) {
+        String[] temp = lines[i].split(",")[1].split(" ");
+        for(int j = 0; j < temp.length; j++)
+          nouns[i].add(temp[j]);
+      }
 
-     this.synsetsG = new Digraph(inSynsets);
-     this.hypernymsG = new Digraph(inHypernyms);
+      lines = inHypernyms.readAll().split("\r\n");
+      length = lines.length;
+
+      for(int i = 0; i < length; i++) {
+        int[] temp = (int[])lines[i].split(",");
+        for(int j = 1; j < temp.length; j++)
+          this.synsetsG.addEdge(temp[0], temp[j]);
+      }
    }
 
    // returns all WordNet nouns
@@ -52,6 +57,6 @@ public class WordNet {
    public static void main(String[] args) {
      WordNet wn = new WordNet(args[0], args[1]);
      System.out.println(wn.synsetsG);
-     System.out.println(wn.hypernymsG);
    }
+
 }
