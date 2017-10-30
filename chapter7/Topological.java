@@ -1,5 +1,4 @@
 import edu.princeton.cs.algs4.In;
-import edu.princeton.cs.algs4.Stack;
 import edu.princeton.cs.algs4.StdOut;
 
 public class Topological {
@@ -11,7 +10,7 @@ public class Topological {
   }
 
   public boolean hasOrder() {
-    return order != null;
+	  return false;
   }
 
   public static void main(String[] args) {
@@ -19,7 +18,7 @@ public class Topological {
     DiGraph G = new DiGraph(in);
     Topological t = new Topological(G);
 
-    for(int v : t.s) {
+    for(int v : t.order) {
       StdOut.print(v + " -> ");
     }
   }
