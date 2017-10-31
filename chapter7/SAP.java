@@ -99,12 +99,12 @@ public class SAP {
 			length = ancestor = -1;
 		} else if(toComm <= VToW && toComm <= WToV) {
 			length = toComm;
-		} else if(VToW < toComm && VToW < WToV) {
+		} else if(VToW <= toComm && VToW <= WToV) {
 			length = VToW;
-			ancestor = v;
-		} else if(WToV < toComm && WToV < VToW) {
-			length = WToV;
 			ancestor = w;
+		} else if(WToV <= toComm && WToV <= VToW) {
+			length = WToV;
+			ancestor = v;
 		} else {
 			System.out.println("what the fuck of this ?!");
 		}
@@ -138,7 +138,7 @@ public class SAP {
 		for(int i : w) {
 			if(VMarked[i] && VDistTo[i] < VToW) {
 				VToW = VDistTo[i];
-				ancestorV = i;
+				ancestorW = i;
 			}
 			WMarked[i] = true;
 			WDistTo[i] = 0;
@@ -158,7 +158,7 @@ public class SAP {
 				//(for any further route is longer than the distance between V and W)
 				if(set.contains(i)) {
 					WToV = WDistTo[x] + 1;
-					ancestorW = i;
+					ancestorV = i;
 					rootLoopFlag = false;
 					break;
 				}
@@ -183,25 +183,28 @@ public class SAP {
 			length = ancestor = -1;
 		} else if(toComm <= VToW && toComm <= WToV) {
 			length = toComm;
-		} else if(VToW < toComm && VToW < WToV) {
+		} else if(VToW <= toComm && VToW <= WToV) {
 			length = VToW;
-			ancestor = pathFrom(ancestorV, VEdgeTo, VDistTo);
-		} else if(WToV < toComm && WToV < VToW) {
+			ancestor = ancestorW;
+		} else if(WToV <= toComm && WToV <= VToW) {
 			length = WToV;
-			ancestor = pathFrom(ancestorW, WEdgeTo, WDistTo);
+			ancestor = ancestorV;
 		} else {
 			System.out.println("what the fuck of this ?!");
 		}
 	}
-
+/*
 	private int pathFrom(int child, int[] edgeTo, int[] distTo) {
 		int i;
 		for(i = child; distTo[i] > 0; i = edgeTo[i]) {}
 		return i;
 	}
 
+
+ * */
 	private boolean validate(int v) {
-		return v >= 0 && v <= this.G.V() - 1;
+		if(v >= 0 && v <= this.G.V() - 1) return true;
+		return false;
 	}
 
 	// length of shortest ancestral path between v and w; -1 if no such path
@@ -241,10 +244,10 @@ public class SAP {
 	    In in = new In(args[0]);
 	    Digraph G = new Digraph(in);
 	    SAP sap = new SAP(G);
-      int v = 1;
-      int w = 5;
-      int length   = sap.length(v, w);
-      int ancestor = sap.ancestor(v, w);
-      StdOut.printf("length = %d, ancestor = %d\n", length, ancestor);
+        int v = 4;
+        int w = 3;
+        int length   = sap.length(v, w);
+        int ancestor = sap.ancestor(v, w);
+        StdOut.printf("length = %d, ancestor = %d\n", length, ancestor);
 	}
 }
