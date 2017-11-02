@@ -1,10 +1,14 @@
 public class Circle {
   private boolean[] marked;
 
-  public Circle(Graph g) {
-    for(int i = 0; i < g.V(); i++) {
-      dfs(g, i, i);
-    }
+  public Cycle(Graph G) {
+    if (hasSelfLoop(G)) return;
+    if (hasParallelEdges(G)) return;
+    marked = new boolean[G.V()];
+    edgeTo = new int[G.V()];
+    for (int v = 0; v < G.V(); v++)
+        if (!marked[v])
+            dfs(G, -1, v);
   }
 
   private void dfs(Graph g, int v, int s) {
@@ -13,7 +17,7 @@ public class Circle {
       if(!marked[w]) {
         dfs(g, w, s);
       } else {
-        
+
       }
     }
   }
