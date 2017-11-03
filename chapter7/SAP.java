@@ -82,7 +82,7 @@ public class SAP {
 				// route for find connection to V
 				if(!WMarked[i]) {
 					// when i is also marked in V and toComm has not been initialized, initial toComm
-					if(VMarked[i] && toComm == INFINITY) {
+					if(VMarked[i] && (VDistTo[i] + WDistTo[x] + 1 < toComm)) {
 						toComm = VDistTo[i] + WDistTo[x] + 1;
 						ancestor = i;
 					}
@@ -117,6 +117,7 @@ public class SAP {
 		Queue<Integer> vq = new Queue<Integer>();
 
 		for(int i : v) {
+			if(!validate(i)) throw new IllegalArgumentException("invaild args");
 			VMarked[i] = true;
 			VDistTo[i] = 0;
 			vq.enqueue(i);
@@ -166,7 +167,7 @@ public class SAP {
 				//to find if W connect V
 				if(!WMarked[i]) {
 					//if i was marked in V and also first found in W
-					if(VMarked[i] && toComm == INFINITY) {
+					if(VMarked[i] && (VDistTo[i] + WDistTo[x] + 1 < toComm)) {
 						toComm = VDistTo[i] + WDistTo[x] + 1;
 						ancestor = i;
 					}
@@ -203,8 +204,7 @@ public class SAP {
 
  * */
 	private boolean validate(int v) {
-		if(v >= 0 && v <= this.G.V() - 1) return true;
-		return false;
+		return v >= 0 && v <= this.G.V() - 1;
 	}
 
 	// length of shortest ancestral path between v and w; -1 if no such path
@@ -244,8 +244,8 @@ public class SAP {
 	    In in = new In(args[0]);
 	    Digraph G = new Digraph(in);
 	    SAP sap = new SAP(G);
-        int v = 4;
-        int w = 3;
+        int v = 13;
+        int w = 9;
         int length   = sap.length(v, w);
         int ancestor = sap.ancestor(v, w);
         StdOut.printf("length = %d, ancestor = %d\n", length, ancestor);
