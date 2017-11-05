@@ -13,6 +13,10 @@ public class Topological {
 	  return false;
   }
 
+  public Iterable<Integer> order {
+    return this.order;
+  }
+
   public static void main(String[] args) {
     In in = new In(args[0]);
     DiGraph G = new DiGraph(in);
