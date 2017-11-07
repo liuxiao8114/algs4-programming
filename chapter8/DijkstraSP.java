@@ -1,4 +1,4 @@
-public class DijkstraSP { 
+public class DijkstraSP {
 	private DirectedEdge[] edgeTo;
 	private double[] distTo;
 	private IndexMinPQ<Double> pq;
@@ -10,23 +10,25 @@ public class DijkstraSP {
 
 		for(int i = 0; i < length; i++)
 			distTo[i] = Double.POSITIVE_INFINITY;
-		distTo[s] = 0;
+		distTo[s] = 0.0;
 
 		pq.insert(s, 0.0);
-		for(Edge e : G.adj(s)) {
-			pq.insert(e.to(), e.weight());
-		}
-		int min = pq.minIndex();
-		edgeTo[min] = s;
-		distTo[min] = pq.minKey();
-		
+
 		while(!pq.isEmpty()) {
 			int v = pq.delMin();
-			for()
+			for(DirectedEdge e : G.adj(v)) {
+				relax(e);
+			}
 		}
 	}
 
 	private void relax(DirectedEdge e) {
-		int v = 
+		int v = e.from(), w = e.to();
+		if(distTo[w] > distTo[v] + e.weight()) {
+			distTo[w] = distTo[v] + e.weight();
+			edgeTo[w] = e;
+			if(pq.contains(w)) pq.decreaseKey(w, distTo[w]);
+			else pq.insert(w, distTo[w]);
+		}
 	}
 }

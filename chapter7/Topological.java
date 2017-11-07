@@ -13,7 +13,7 @@ public class Topological {
 	  return false;
   }
 
-  public Iterable<Integer> order {
+  public Iterable<Integer> order() {
     return this.order;
   }
 
