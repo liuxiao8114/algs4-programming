@@ -3,131 +3,156 @@ import java.awt.Color;
 import edu.princeton.cs.algs4.AcyclicSP;
 import edu.princeton.cs.algs4.DirectedEdge;
 import edu.princeton.cs.algs4.EdgeWeightedDigraph;
+import edu.princeton.cs.algs4.MinPQ;
 import edu.princeton.cs.algs4.Picture;
+import edu.princeton.cs.algs4.Queue;
+import edu.princeton.cs.algs4.ST;
 
 public class SeamCarver {
-	private Picture picture;
-	private int[][] energy;
-	private EdgeWeightedDigraph G;
+	private double[][] energy;
+	private int[][] c;
+	private int H, W;
+	private int[] vseam, hseam;
+
 	private final static double BORDER = 1000.0;
+	private final static int R = 16;
+	private final static int G = 8;
+	private final static int B = 0;
 
 	// create a seam carver object based on the given picture
 	public SeamCarver(Picture picture) {
-		this.picture = picture;
-		int width = this.picture.width();
-		int height = this.picture.height();
-		for(int i = 0; i < width; i++) {
+		this.W = picture.width();
+		this.H = picture.height();
+		this.energy = new double[this.H][this.W];
 
-		}
-	}
-
-	/*
-	public SeamCarver(Picture picture) {
-		this.picture = picture;
-		this.width = this.picture.width();
-		this.height = this.picture.height();
-		int length = this.width * this.height + 4;
-		this.G = new EdgeWeightedDigraph(length);
-
-		for(int i = 0; i < this.width; i++) {
-			for(int j = 0; j < this.height - 1; j++) {
-				if(i != 0) {
-					this.G.addEdge(new DirectedEdge(pixel(i, j) , pixel(i - 1, j + 1), energy(i - 1, j + 1)));
-				}
-				if(i != this.width - 1) {
-					this.G.addEdge(new DirectedEdge(pixel(i, j) , pixel(i + 1, j + 1), energy(i + 1, j + 1)));
-				}
-				this.G.addEdge(new DirectedEdge(pixel(i, j) , pixel(i, j + 1), energy(i, j + 1)));
+		for(int i = 0; i < H; i++) {
+			for(int j = 0; j < W; j++) {
+				c[i][j] = picture.get(j, i).getRGB();
 			}
 		}
-
-		for(int k = 0; k < this.width; k++) {
-			this.G.addEdge(new DirectedEdge(length - 4, pixel(k, 0), 0.0));
-			this.G.addEdge(new DirectedEdge(pixel(k, this.height - 1), length - 3, 0.0));
-		}
-
-		for(int k = 0; k < this.height; k++) {
-			this.G.addEdge(new DirectedEdge(length - 2, pixel(0, k), 0.0));
-			this.G.addEdge(new DirectedEdge(pixel(this.width - 1, k), length - 1, 0.0));
-		}
-	}
-
-
-	*/
-
-
-	// index of pixel at column x and row y
-	private int pixel(int x, int y) {
-		return y * this.width + x;
 	}
 
 	// current picture
 	public Picture picture() {
-		return this.picture;
+		Picture pic = new Picture(W, H);
+		for(int i = 0; i < H; i++)
+			for(int j = 0; j < W; j++)
+				pic.set(j, i, new Color(c[i][j]));
+		return pic;
 	}
 
 	// width of current picture
 	public int width() {
-		return this.width;
+		return this.W;
 	}
 
 	// height of current picture
 	public int height() {
-		return this.height;
+		return this.H;
 	}
 
-	// energy of pixel at column x and row y
+	// energy of pixel at col x and row y
 	public double energy(int x, int y) {
-		if(x == 0 || y == 0 || x == this.width - 1 || y == this.height - 1) return BORDER;
-		Color left = this.picture.get(x - 1, y);
-		Color right = this.picture.get(x + 1, y);
-		Color top = this.picture.get(x, y - 1);
-		Color bottom = this.picture.get(x, y + 1);
-
-		return square(right.getRed() - left.getRed()) +
-		square(right.getGreen() - left.getGreen()) +
-		square(right.getBlue() - left.getBlue()) +
-		square(bottom.getRed() - top.getRed()) +
-		square(bottom.getGreen() - top.getGreen()) +
-		square(bottom.getBlue() - top.getBlue());
+		if (x < 0 || x >= W || y < 0 || y >= H)
+            throw new IndexOutOfBoundsException();
+		return energy[y][x];
 	}
 
-	private double square(double x) {
-		return x * x;
+	private void calcEnergy() {
+		for(int x = 0; x < H; x++) {
+			for(int y = 0; y < W; y++) {
+				if(x == 0 || y == 0 || x == this.H - 1 || y == this.W - 1) {
+					energy[x][y] = BORDER;
+					continue;
+				}
+
+				int rh = getColor(x, y+1, R) - getColor(x, y-1, R);
+				int gh = getColor(x, y+1, G) - getColor(x, y-1, G);
+				int bh = getColor(x, y+1, B) - getColor(x, y-1, B);
+				int rv = getColor(x+1, y, R) - getColor(x-1, y, R);
+				int gv = getColor(x+1, y, G) - getColor(x-1, y, G);
+				int bv = getColor(x+1, y, B) - getColor(x-1, y, B);
+
+				energy[x][y] = Math.sqrt(rh*rh + gh*gh + bh*bh + rv*rv + gv*gv + bv*bv);
+			}
+		}
+	}
+
+	private int getColor(int row, int col, int cType) {
+		return (c[row][col] >> cType) & 0xFF;
+	}
+
+	// sequence of indices for horizontal seam
+	public int[] findHorizontalSeam() {
+		for(int i = 0; i < H; i++) {
+			System.arraycopy(energy[i], 0, temp[][i], 0);
+		}
+
+		double[][] reverseEnergy = tranverse();
+		int[] x =  findHorizontalSeam();
+		energy = temp;
+		return x;
+	}
+
+	// sequence of indices for vertical seam
+	public int[] findVerticalSeam() {
+		return findVerticalSeamWithDAG();
+	}
+
+	// remove horizontal seam from current picture
+	public void removeHorizontalSeam(int[] seam) {
+
+	}
+
+	// remove vertical seam from current picture
+	public void removeVerticalSeam(int[] seam) {
+		double[][] temp = new double[this.H][this.W - 1];
+		for(int i = 0; i < this.H; i++) {
+			if(seam[i] == 0) {
+				temp[i][0] = BORDER;
+				for(int j = 2; j < this.W - 1; j++) {
+					temp[i][j - 1] = energy[i][j];
+				}
+			} else if(seam[i] == this.W - 1) {
+				temp[i][this.W - 2] = BORDER;
+				for(int j = 0; j < this.W - 2; j++) {
+					temp[i][j] = energy[i][j];
+				}
+			} else {
+				for(int j = 0; j < seam[i] - 2; j++) {
+					temp[i][j - 1] = energy[i][j];
+				}
+				temp[i][]
+
+				for(int j = 1; j < this.W - 2; j++) {
+					temp[i][j - 1] = energy[i][j];
+				}
+			}
+
+		}
 	}
 
 	private void dfs(int v) {
-		dfs();
+
 	}
 
 	private void bfs() {
 
 	}
 
-	// sequence of indices for horizontal seam
-	public int[] findHorizontalSeamWithBFS() {
-		int[] paths = new int[];
-		Queue<Double> q = new Queue<Double>();
-		for(int i = 0; i < this.width; i++)
-			q.enqueue(energy[0][j]);
-
-		while(!q.isEmpty()) {
-			q.delMin();
-		}
-
-		for(int i = 0; i < this.height - 1; i++) {
-			for(int j = 0; j < this.width; j++) {
-
+	private double[][] tranverse() {
+		double[][] n = new double[W][H];
+		for(int i = 0; i < W; i++) {
+			for(int j = 0; j < H; j++) {
+				n[i][j] = energy[j][i];
 			}
 		}
+
+		return n;
 	}
 
 	// relax which connected with row i column j
 	private void relax(int i, int j) {
-		if(i == this.height - 1) {
-
-		}
-
 		if(j > 0 && distTo[i + 1][j - 1] > distTo[i][j] + energy[i + 1][j - 1]) {
 			distTo[i + 1][j - 1] = distTo[i][j] + energy[i + 1][j - 1];
 			edgeTo[i + 1][j - 1] = j;
@@ -138,69 +163,69 @@ public class SeamCarver {
 			edgeTo[i + 1][j] = j;
 		}
 
-		if(j < this.width && distTo[i + 1][j + 1] > distTo[i][j] + energy[i + 1][j + 1]) {
+		if(j < this.W && distTo[i + 1][j + 1] > distTo[i][j] + energy[i + 1][j + 1]) {
 			distTo[i + 1][j + 1] = distTo[i][j] + energy[i + 1][j + 1];
 			edgeTo[i + 1][j + 1] = j;
 		}
 	}
 
-	// sequence of indices for horizontal seam
-	public int[] findHorizontalSeamWithDAG() {
-		int[] paths = new int[this.height];
+	private int[] findVerticalSeamWithDAG() {
+		int[] paths = new int[this.H];
+		double[][] distTo = new double[this.H][this.W];
+		int[][] edgeTo = new int[this.H][this.W];
 
-		for(int i = 0; i < this.height - 1; i++) {
-			for(int j = 0; j < this.width; j++) {
+		//inverted distTo for energy to index
+		ST<Double, Integer> st = new ST<Double, Integer>();
+
+		for(int j = 0; j < this.W; j++) {
+			distTo[0][j] = BORDER;
+		}
+
+		for(int i = 1; i < this.H - 1; i++) {
+			for(int j = 0; j < this.W; j++) {
+				distTo[i][j] = Double.POSITIVE_INFINITY;
+			}
+		}
+
+		for(int i = 0; i < this.H - 1; i++) {
+			for(int j = 0; j < this.W; j++) {
 				relax(i, j);
 			}
 		}
 
-		paths = this.
+		for(int j = 0; j < this.W; j++) {
+			st.put(distTo[this.H - 1][j], j);
+		}
 
-		int minIndex;
+		int minIndex = st.get(st.min());
 
-		for(int k = this.height - 1; k >= 0; k--) {
+		for(int k = this.H - 1; k >= 0; k--) {
 			paths[k] = minIndex;
 			minIndex = edgeTo[k][minIndex];
 		}
-		return paths;
-	}
-
-	// remove vertical seam from current picture
-	public void removeVerticalSeamWithDAG(int[] seam) {
-		int[][] temp = energy.clone();
-
-		for(int i = 0; i < this.height; i++) {
-			energy[seam[i] - 2];
-		}
-
-		energy[]
-	}
-
-	// sequence of indices for horizontal seam
-	public int[] findHorizontalSeam() {
-		return ;
-	}
-
-	// sequence of indices for vertical seam
-	public int[] findVerticalSeam() {
-		AcyclicSP sp = new AcyclicSP(this.G, this.width * this.height);
-		int[] paths = new int[this.height];
-		int i = this.height - 1;
-
-		for(DirectedEdge e : sp.pathTo(this.width * this.height + 1)) {
-			paths[i--] = e.from();
-		}
 
 		return paths;
 	}
 
-	// remove horizontal seam from current picture
-	public void removeHorizontalSeam(int[] seam) {
+	private int[] findVerticalSeamWithBFS() {
+		int[] paths = new int[H];
+		MinPQ<Double> q = new MinPQ<Double>();
+		for(int i = 0; i < this.W; i++)
+			q.insert(energy[0][i]);
 
+		while(!q.isEmpty()) {
+			q.delMin();
+		}
+
+		for(int i = 0; i < this.H - 1; i++) {
+			for(int j = 0; j < this.W; j++) {
+
+			}
+		}
+		return paths;
 	}
 
-	// remove vertical seam from current picture
-	public void removeVerticalSeam(int[] seam) {
+	public static void main(String[] args) {
 
 	}
 }
