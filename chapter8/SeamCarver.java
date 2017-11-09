@@ -21,15 +21,17 @@ public class SeamCarver {
 
 	// create a seam carver object based on the given picture
 	public SeamCarver(Picture picture) {
+		if(picture == null) throw new IllegalArgumentException();
 		this.W = picture.width();
 		this.H = picture.height();
-		this.energy = new double[this.H][this.W];
+		this.energy = new double[H][W];
+		this.c = new int[H][W];
 
-		for(int i = 0; i < H; i++) {
-			for(int j = 0; j < W; j++) {
+		for(int i = 0; i < H; i++)
+			for(int j = 0; j < W; j++)
 				c[i][j] = picture.get(j, i).getRGB();
-			}
-		}
+
+		calcEnergy();
 	}
 
 	// current picture
@@ -59,22 +61,23 @@ public class SeamCarver {
 	}
 
 	private void calcEnergy() {
-		for(int x = 0; x < H; x++) {
-			for(int y = 0; y < W; y++) {
-				if(x == 0 || y == 0 || x == this.H - 1 || y == this.W - 1) {
-					energy[x][y] = BORDER;
-					continue;
-				}
+		for(int x = 0; x < H; x++)
+			for(int y = 0; y < W; y++)
+				calcEnergy(x, y);
+	}
 
-				int rh = getColor(x, y+1, R) - getColor(x, y-1, R);
-				int gh = getColor(x, y+1, G) - getColor(x, y-1, G);
-				int bh = getColor(x, y+1, B) - getColor(x, y-1, B);
-				int rv = getColor(x+1, y, R) - getColor(x-1, y, R);
-				int gv = getColor(x+1, y, G) - getColor(x-1, y, G);
-				int bv = getColor(x+1, y, B) - getColor(x-1, y, B);
+	private void calcEnergy(int x, int y) {
+		if(x == 0 || y == 0 || x == this.H - 1 || y == this.W - 1) {
+			energy[x][y] = BORDER;
+		} else {
+			int rh = getColor(x, y+1, R) - getColor(x, y-1, R);
+			int gh = getColor(x, y+1, G) - getColor(x, y-1, G);
+			int bh = getColor(x, y+1, B) - getColor(x, y-1, B);
+			int rv = getColor(x+1, y, R) - getColor(x-1, y, R);
+			int gv = getColor(x+1, y, G) - getColor(x-1, y, G);
+			int bv = getColor(x+1, y, B) - getColor(x-1, y, B);
 
-				energy[x][y] = Math.sqrt(rh*rh + gh*gh + bh*bh + rv*rv + gv*gv + bv*bv);
-			}
+			energy[x][y] = Math.sqrt(rh*rh + gh*gh + bh*bh + rv*rv + gv*gv + bv*bv);
 		}
 	}
 
@@ -84,60 +87,46 @@ public class SeamCarver {
 
 	// sequence of indices for horizontal seam
 	public int[] findHorizontalSeam() {
-		for(int i = 0; i < H; i++) {
-			System.arraycopy(energy[i], 0, temp[][i], 0);
-		}
-
-		double[][] reverseEnergy = tranverse();
-		int[] x =  findHorizontalSeam();
-		energy = temp;
-		return x;
+		return findVerticalSeamWithDAG(tranverse());
 	}
 
 	// sequence of indices for vertical seam
 	public int[] findVerticalSeam() {
-		return findVerticalSeamWithDAG();
+		return findVerticalSeamWithDAG(this.energy);
 	}
 
 	// remove horizontal seam from current picture
 	public void removeHorizontalSeam(int[] seam) {
-
+		removeVerticalSeam(seam);
 	}
 
 	// remove vertical seam from current picture
 	public void removeVerticalSeam(int[] seam) {
-		double[][] temp = new double[this.H][this.W - 1];
+		if(seam == null) throw new IllegalArgumentException();
 		for(int i = 0; i < this.H; i++) {
-			if(seam[i] == 0) {
-				temp[i][0] = BORDER;
-				for(int j = 2; j < this.W - 1; j++) {
-					temp[i][j - 1] = energy[i][j];
-				}
-			} else if(seam[i] == this.W - 1) {
-				temp[i][this.W - 2] = BORDER;
-				for(int j = 0; j < this.W - 2; j++) {
-					temp[i][j] = energy[i][j];
-				}
-			} else {
-				for(int j = 0; j < seam[i] - 2; j++) {
-					temp[i][j - 1] = energy[i][j];
-				}
-				temp[i][]
+			if(seam[i] < 0 || seam[i] > W-1) throw new IllegalArgumentException();
+			//reset color[][] at the seam edge
+			c[i][seam[i]] = c[i][seam[i] + 1];
+			c[i][seam[i + 1]] = c[i][seam[i] + 2];
 
-				for(int j = 1; j < this.W - 2; j++) {
-					temp[i][j - 1] = energy[i][j];
-				}
+			//reset energy[][] and color[][] right after seam
+			for(int j = seam[i] + 2; j < this.W - 2; j++) {
+				energy[i][j] = energy[i][j + 1];
+				c[i][j] = c[i][j + 1];
 			}
 
+			energy[i][this.W - 2] = BORDER;
+
+			//recalculate energy
+			calcEnergy(i, seam[i]);
+			if(i > 0) calcEnergy(i - 1, seam[i]);
+			if(i < H - 1) calcEnergy(i + 1, seam[i]);
+			if(seam[i] != 0) calcEnergy(i, seam[i] - 1);
+			if(seam[i] != W - 1) calcEnergy(i, seam[i] + 1);
 		}
-	}
 
-	private void dfs(int v) {
-
-	}
-
-	private void bfs() {
-
+		H--;
+		W--;
 	}
 
 	private double[][] tranverse() {
@@ -151,25 +140,7 @@ public class SeamCarver {
 		return n;
 	}
 
-	// relax which connected with row i column j
-	private void relax(int i, int j) {
-		if(j > 0 && distTo[i + 1][j - 1] > distTo[i][j] + energy[i + 1][j - 1]) {
-			distTo[i + 1][j - 1] = distTo[i][j] + energy[i + 1][j - 1];
-			edgeTo[i + 1][j - 1] = j;
-		}
-
-		if(distTo[i + 1][j] > distTo[i][j] + energy[i + 1][j]) {
-			distTo[i + 1][j] = distTo[i][j] + energy[i + 1][j];
-			edgeTo[i + 1][j] = j;
-		}
-
-		if(j < this.W && distTo[i + 1][j + 1] > distTo[i][j] + energy[i + 1][j + 1]) {
-			distTo[i + 1][j + 1] = distTo[i][j] + energy[i + 1][j + 1];
-			edgeTo[i + 1][j + 1] = j;
-		}
-	}
-
-	private int[] findVerticalSeamWithDAG() {
+	private int[] findVerticalSeamWithDAG(double[][] energy) {
 		int[] paths = new int[this.H];
 		double[][] distTo = new double[this.H][this.W];
 		int[][] edgeTo = new int[this.H][this.W];
@@ -177,6 +148,7 @@ public class SeamCarver {
 		//inverted distTo for energy to index
 		ST<Double, Integer> st = new ST<Double, Integer>();
 
+		//init distTo
 		for(int j = 0; j < this.W; j++) {
 			distTo[0][j] = BORDER;
 		}
@@ -187,9 +159,23 @@ public class SeamCarver {
 			}
 		}
 
+		//call relax with every pixel
 		for(int i = 0; i < this.H - 1; i++) {
 			for(int j = 0; j < this.W; j++) {
-				relax(i, j);
+				if(j > 0 && distTo[i + 1][j - 1] > distTo[i][j] + energy[i + 1][j - 1]) {
+					distTo[i + 1][j - 1] = distTo[i][j] + energy[i + 1][j - 1];
+					edgeTo[i + 1][j - 1] = j;
+				}
+
+				if(distTo[i + 1][j] > distTo[i][j] + energy[i + 1][j]) {
+					distTo[i + 1][j] = distTo[i][j] + energy[i + 1][j];
+					edgeTo[i + 1][j] = j;
+				}
+
+				if(j < this.W && distTo[i + 1][j + 1] > distTo[i][j] + energy[i + 1][j + 1]) {
+					distTo[i + 1][j + 1] = distTo[i][j] + energy[i + 1][j + 1];
+					edgeTo[i + 1][j + 1] = j;
+				}
 			}
 		}
 
@@ -223,6 +209,14 @@ public class SeamCarver {
 			}
 		}
 		return paths;
+	}
+
+	private void dfs(int v) {
+
+	}
+
+	private void bfs() {
+
 	}
 
 	public static void main(String[] args) {
