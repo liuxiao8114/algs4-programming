@@ -1,8 +1,5 @@
 import java.awt.Color;
 
-import edu.princeton.cs.algs4.AcyclicSP;
-import edu.princeton.cs.algs4.DirectedEdge;
-import edu.princeton.cs.algs4.EdgeWeightedDigraph;
 import edu.princeton.cs.algs4.MinPQ;
 import edu.princeton.cs.algs4.Picture;
 import edu.princeton.cs.algs4.Queue;
@@ -56,7 +53,7 @@ public class SeamCarver {
 	// energy of pixel at col x and row y
 	public double energy(int x, int y) {
 		if (x < 0 || x >= W || y < 0 || y >= H)
-            throw new IndexOutOfBoundsException();
+            throw new IllegalArgumentException();
 		return energy[y][x];
 	}
 
@@ -66,6 +63,7 @@ public class SeamCarver {
 				calcEnergy(x, y);
 	}
 
+	//calculate energy for row x and col y
 	private void calcEnergy(int x, int y) {
 		if(x == 0 || y == 0 || x == this.H - 1 || y == this.W - 1) {
 			energy[x][y] = BORDER;
@@ -87,81 +85,96 @@ public class SeamCarver {
 
 	// sequence of indices for horizontal seam
 	public int[] findHorizontalSeam() {
-		return findVerticalSeamWithDAG(tranverse());
+		tranverse();
+		int[] ret = findVerticalSeamWithDAG();
+		tranverse();
+		return ret;
 	}
 
 	// sequence of indices for vertical seam
 	public int[] findVerticalSeam() {
-		return findVerticalSeamWithDAG(this.energy);
+		return findVerticalSeamWithDAG();
 	}
 
 	// remove horizontal seam from current picture
 	public void removeHorizontalSeam(int[] seam) {
+		tranverse();
 		removeVerticalSeam(seam);
+		tranverse();
 	}
 
 	// remove vertical seam from current picture
 	public void removeVerticalSeam(int[] seam) {
-		if(seam == null) throw new IllegalArgumentException();
-		for(int i = 0; i < this.H; i++) {
+		if(seam == null || seam.length != H) throw new IllegalArgumentException();
+		if(W == 1) throw new IllegalArgumentException("W got 1, no more remove");
+
+		for(int i = 0; i < H; i++) {
 			if(seam[i] < 0 || seam[i] > W-1) throw new IllegalArgumentException();
+
 			//reset color[][] at the seam edge
-			c[i][seam[i]] = c[i][seam[i] + 1];
-			c[i][seam[i + 1]] = c[i][seam[i] + 2];
+			for(int j = seam[i]; j < W - 1; j++)
+				c[i][j] = c[i][j + 1];
 
 			//reset energy[][] and color[][] right after seam
-			for(int j = seam[i] + 2; j < this.W - 2; j++) {
+			for(int j = seam[i] + 2; j < W - 2; j++) {
 				energy[i][j] = energy[i][j + 1];
-				c[i][j] = c[i][j + 1];
 			}
 
-			energy[i][this.W - 2] = BORDER;
+			//reset right border;
+			energy[i][W - 2] = BORDER;
 
 			//recalculate energy
-			calcEnergy(i, seam[i]);
+			if(seam[i] == 0)
+				energy[i][1] = BORDER;
+			else
+				calcEnergy(i, seam[i]);
+
 			if(i > 0) calcEnergy(i - 1, seam[i]);
 			if(i < H - 1) calcEnergy(i + 1, seam[i]);
 			if(seam[i] != 0) calcEnergy(i, seam[i] - 1);
 			if(seam[i] != W - 1) calcEnergy(i, seam[i] + 1);
 		}
 
-		H--;
 		W--;
 	}
 
-	private double[][] tranverse() {
-		double[][] n = new double[W][H];
+	private void tranverse() {
+		double[][] transE = new double[W][H];
+		int[][] transC = new int[W][H];
+
 		for(int i = 0; i < W; i++) {
 			for(int j = 0; j < H; j++) {
-				n[i][j] = energy[j][i];
+				transE[i][j] = energy[j][i];
+				transC[i][j] = c[j][i];
 			}
 		}
 
-		return n;
+		energy = transE;
+		c = transC;
+		int temp = H;
+		H = W;
+		W = temp;
 	}
 
-	private int[] findVerticalSeamWithDAG(double[][] energy) {
-		int[] paths = new int[this.H];
-		double[][] distTo = new double[this.H][this.W];
-		int[][] edgeTo = new int[this.H][this.W];
+	private int[] findVerticalSeamWithDAG() {
+		int[] paths = new int[H];
+		double[][] distTo = new double[H][W];
+		int[][] edgeTo = new int[H][W];
 
 		//inverted distTo for energy to index
 		ST<Double, Integer> st = new ST<Double, Integer>();
 
 		//init distTo
-		for(int j = 0; j < this.W; j++) {
+		for(int j = 0; j < W; j++)
 			distTo[0][j] = BORDER;
-		}
 
-		for(int i = 1; i < this.H - 1; i++) {
-			for(int j = 0; j < this.W; j++) {
+		for(int i = 1; i < H; i++)
+			for(int j = 0; j < W; j++)
 				distTo[i][j] = Double.POSITIVE_INFINITY;
-			}
-		}
 
 		//call relax with every pixel
-		for(int i = 0; i < this.H - 1; i++) {
-			for(int j = 0; j < this.W; j++) {
+		for(int i = 0; i < H - 1; i++) {
+			for(int j = 0; j < W; j++) {
 				if(j > 0 && distTo[i + 1][j - 1] > distTo[i][j] + energy[i + 1][j - 1]) {
 					distTo[i + 1][j - 1] = distTo[i][j] + energy[i + 1][j - 1];
 					edgeTo[i + 1][j - 1] = j;
@@ -172,20 +185,22 @@ public class SeamCarver {
 					edgeTo[i + 1][j] = j;
 				}
 
-				if(j < this.W && distTo[i + 1][j + 1] > distTo[i][j] + energy[i + 1][j + 1]) {
+				if(j < W - 1 && distTo[i + 1][j + 1] > distTo[i][j] + energy[i + 1][j + 1]) {
 					distTo[i + 1][j + 1] = distTo[i][j] + energy[i + 1][j + 1];
 					edgeTo[i + 1][j + 1] = j;
 				}
 			}
 		}
 
-		for(int j = 0; j < this.W; j++) {
-			st.put(distTo[this.H - 1][j], j);
+		// put last energy in st
+		for(int j = 0; j < W; j++) {
+			st.put(distTo[H - 1][j], j);
 		}
 
 		int minIndex = st.get(st.min());
 
-		for(int k = this.H - 1; k >= 0; k--) {
+		// find the least energy and the path
+		for(int k = H - 1; k >= 0; k--) {
 			paths[k] = minIndex;
 			minIndex = edgeTo[k][minIndex];
 		}
