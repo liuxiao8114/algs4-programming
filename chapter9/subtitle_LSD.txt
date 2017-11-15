@@ -165,6 +165,7 @@ there was this machine that could sort cards.
 And the way that it worked was, LSD Rate exort, the LSD string sort on those
 characters that are the numbers that keep the card in order.
 They would, you'ld start on the right column.
+
 And there was a physical thing, you'd set to a call and, it was gonna sort on, you
 put the deck in, and it'd distribute, the ones with zero in the first bin, or ones
 with one in the second bin, all the way up, it'd, and of all the cards it start
