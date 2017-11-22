@@ -19,18 +19,6 @@ public class KMP {
     }
   }
 
-  private int[][] dfa(String txt) {
-    int N = txt.length(), M = pattern.length();
-    // 1. how to get different char list?
-    int[][] dfa = new int[N][M];
-    for(int i = 0; i < N; i++) {
-      for(int j = 0; ) {
-
-      }
-      dfa[txt.charAt(i)]
-    }
-  }
-
   public int search(String txt) {
     int m = pat.length();
     int n = text.length();
