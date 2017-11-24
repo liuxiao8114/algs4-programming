@@ -5,7 +5,7 @@ import edu.princeton.cs.algs4.StdOut;
 import edu.princeton.cs.algs4.TrieST;
 
 public class BoggleSolver {
-//  private final int R = 256;
+//  private final int R = 26;
 
   private TrieST<Boolean> st;
   // Initializes the data structure using the given array of strings as the dictionary.
@@ -14,12 +14,6 @@ public class BoggleSolver {
     st = new TrieST<Boolean>();
     for(int i = 0; i < dictionary.length; i++) {
       st.put(dictionary[i], true);
-      /*
-      int length = dictionary[i].length();
-      for(int j = 0; j < length; j++) {
-        dictionary[i].charAt(j);
-      }
-      */
     }
   }
 
@@ -35,14 +29,13 @@ public class BoggleSolver {
     StringBuilder prefix, Bag<String> result) {
     int row = board.rows(), col = board.cols();
     // check
-    prefix.append(board.getLetter(i, j));
+    char c = board.getLetter(i, j);
+
+    if(c == 81) prefix.append("QU");
+    else prefix.append(c);
+
     String s = prefix.toString();
-
     marked[i * col + j] = true;
-
-    if(s.equals("YO")) {
-    	System.out.println();
-    }
 
     if(!st.keysWithPrefix(s).iterator().hasNext()) return;
     if(st.contains(s) && st.get(s) && s.length() > 2) {
@@ -98,12 +91,8 @@ public class BoggleSolver {
     int row = board.rows(), col = board.cols();
     Bag<String> result = new Bag<String>();
     for(int i = 0; i < row; i++) {
-      for(int j = 0; j < col; j++) {
-    	if(i == 1 && j == 2) {
-    		System.out.println("this is : " + board.getLetter(i, j));
-    	}
+      for(int j = 0; j < col; j++)
         dfs(i, j, board, new boolean[row * col], new StringBuilder(), result);
-      }
     }
     return result;
   }
@@ -112,6 +101,7 @@ public class BoggleSolver {
   // (You can assume the word contains only the uppercase letters A through Z.)
   public int scoreOf(String word) {
     int length = word.length();
+
     if(length <= 2) return 0;
     if(length <= 4) return 1;
     if(length == 5) return 2;
@@ -132,5 +122,5 @@ public class BoggleSolver {
         score += solver.scoreOf(word);
     }
     StdOut.println("Score = " + score);
-}
+  }
 }
