@@ -7,7 +7,7 @@ import edu.princeton.cs.algs4.StdOut;
 
 public class BoggleSolver {
 
-  private TrieST<Boolean> st;
+  private final TrieST<Boolean> st;
   // Initializes the data structure using the given array of strings as the dictionary.
   // (You can assume each word in the dictionary contains only the uppercase letters A through Z.)
   public BoggleSolver(String[] dictionary) {
@@ -58,7 +58,7 @@ public class BoggleSolver {
       if(!marked[(i - 1) * col + j]) {
         q.enqueue(new Node(i - 1, j));
       }
-      if(j + 1 < row && !marked[(i - 1) * col + j + 1]) {
+      if(j + 1 < col && !marked[(i - 1) * col + j + 1]) {
         q.enqueue(new Node(i - 1, j + 1));
       }
       if(j > 0 && !marked[(i - 1) * col + j - 1]) {
@@ -66,7 +66,7 @@ public class BoggleSolver {
       }
     }
 
-    if(j + 1 < row && !marked[i * col + j + 1]) {
+    if(j + 1 < col && !marked[i * col + j + 1]) {
       q.enqueue(new Node(i, j + 1));
     }
 
@@ -96,6 +96,7 @@ public class BoggleSolver {
   // Returns the score of the given word if it is in the dictionary, zero otherwise.
   // (You can assume the word contains only the uppercase letters A through Z.)
   public int scoreOf(String word) {
+    if(!st.contains(word)) return 0;
     int length = word.length();
 
     if(length <= 2) return 0;
