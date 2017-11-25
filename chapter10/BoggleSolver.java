@@ -1,11 +1,11 @@
-import edu.princeton.cs.algs4.Bag;
+import java.util.Iterator;
+
 import edu.princeton.cs.algs4.In;
 import edu.princeton.cs.algs4.Queue;
+import edu.princeton.cs.algs4.ST;
 import edu.princeton.cs.algs4.StdOut;
-import edu.princeton.cs.algs4.TrieST;
 
 public class BoggleSolver {
-//  private final int R = 26;
 
   private TrieST<Boolean> st;
   // Initializes the data structure using the given array of strings as the dictionary.
@@ -25,9 +25,8 @@ public class BoggleSolver {
     }
   }
 
-  private void dfs(int i, int j, BoggleBoard board, boolean[] marked,
-    StringBuilder prefix, Bag<String> result) {
-    int row = board.rows(), col = board.cols();
+  private void dfs(int i, int j, BoggleBoard board, int row, int col, boolean[] marked,
+    StringBuilder prefix, ST<String, Integer> result) {
     // check
     char c = board.getLetter(i, j);
 
@@ -38,11 +37,8 @@ public class BoggleSolver {
     marked[i * col + j] = true;
 
     if(!st.keysWithPrefix(s).iterator().hasNext()) return;
-    if(st.contains(s) && st.get(s) && s.length() > 2) {
-    	result.add(s);
-    	st.put(s, false);
-    }
-
+    if(st.contains(s) && s.length() > 2) result.put(s, 1);
+    
     // build adjacent dice
     Queue<Node> q = new Queue<Node>();
 
@@ -81,19 +77,19 @@ public class BoggleSolver {
     // Recursive
     while(!q.isEmpty()) {
       Node n = q.dequeue();
-      dfs(n.row, n.col, board, marked.clone(),
-        new StringBuilder(prefix), result);
+      dfs(n.row, n.col, board, row, col, marked.clone(), new StringBuilder(prefix), result);
     }
   }
 
   // Returns the set of all valid words in the given Boggle board, as an Iterable.
   public Iterable<String> getAllValidWords(BoggleBoard board) {
     int row = board.rows(), col = board.cols();
-    Bag<String> result = new Bag<String>();
+    ST<String, Integer> result = new ST<String, Integer>();
     for(int i = 0; i < row; i++) {
       for(int j = 0; j < col; j++)
-        dfs(i, j, board, new boolean[row * col], new StringBuilder(), result);
+        dfs(i, j, board, row, col, new boolean[row * col], new StringBuilder(), result);
     }
+    
     return result;
   }
 
@@ -116,11 +112,15 @@ public class BoggleSolver {
     String[] dictionary = in.readAllStrings();
     BoggleSolver solver = new BoggleSolver(dictionary);
     BoggleBoard board = new BoggleBoard(args[1]);
-    int score = 0;
-    for (String word : solver.getAllValidWords(board)) {
-        StdOut.println(word);
+    
+    int score = 0, i = 1;
+    Iterator<String> iter = solver.getAllValidWords(board).iterator();
+    while(iter.hasNext()) {
+      String word = iter.next();
+        StdOut.println("No." + i++ + ": " + word);
         score += solver.scoreOf(word);
     }
+
     StdOut.println("Score = " + score);
   }
 }
