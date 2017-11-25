@@ -20,7 +20,7 @@ public class TrieST<Value> {
       return x;
     }
     char c = key.charAt(d);
-    x.next[c - ALP] = put(x, key, val, d + 1);
+    x.next[c - ALP] = put(x.next[c - ALP], key, val, d + 1);
     return x;
   }
 
@@ -58,10 +58,18 @@ public class TrieST<Value> {
   private void collect(Node x, StringBuilder prefix, Queue<String> results) {
       if (x == null) return;
       if (x.val != null) results.enqueue(prefix.toString());
-      for (char c = 0; c < R; c++) {
-          prefix.append(c + ALP);
-          collect(x.next[c], prefix, results);
+      for (char c = ALP; c < R + ALP; c++) {
+          prefix.append(c);
+          collect(x.next[c - ALP], prefix, results);
           prefix.deleteCharAt(prefix.length() - 1);
       }
+  }
+  
+  public static void main(String[] args) { 
+	  String s = "ABC";
+	  TrieST<Integer> st = new TrieST<Integer>();
+	  st.put(s, 1);
+	  st.put("ABCD", 1);
+	  System.out.println(st.keysWithPrefix("AB"));
   }
 }
