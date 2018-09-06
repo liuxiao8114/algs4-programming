@@ -40,7 +40,7 @@ public class Huffman {
     BinaryStdOut.write(input.length);
 
     for(int i = 0; i < input.length; i++) {
-      String code = input[i];
+      String code = st[input[i]];
       for(int j = 0; j < code.length(); j++) {
         if(code.charAt(j) == '0') {
           BinaryStdOut.write(false);
@@ -57,7 +57,6 @@ public class Huffman {
 
   public static void expand() {
     Node root = readTrie();
-
     int length = BinaryStdIn.readInt();
 
 
@@ -78,7 +77,7 @@ public class Huffman {
     MinPQ<Node> pq = new MinPQ<Node>();
     for(char i = 0; i < R; i++) {
       if(freq[i] > 0)
-        pq.insert(new Node(i, frqe[i], null, null));
+        pq.insert(new Node(i, freq[i], null, null));
     }
 
     // special case in case there is only one character with a nonzero frequency
@@ -94,6 +93,15 @@ public class Huffman {
     }
 
     return pq.delMin();
+  }
+
+  private static void readTrie() {
+    boolean isLeaf = BinaryStdIn.readBoolean();
+    if(isLeaf) {
+      return new Node(BinaryStdIn.readChar(), -1, null, null);
+    } else {
+      return new Node('\0', -1, readTrie(), readTrie())
+    }
   }
 
   private static void buildCode(String[] st, Node x, String s) {
