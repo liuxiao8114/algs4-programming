@@ -1,3 +1,7 @@
+import edu.princeton.cs.algs4.FlowEdge;
+import edu.princeton.cs.algs4.FlowNetwork;
+import edu.princeton.cs.algs4.Queue;
+
 public class FordFulkerson {
   private boolean[] marked;   // true if s->v path in residual network
   private FlowEdge[] edgeTo;  // last edge on s->v path
@@ -6,7 +10,7 @@ public class FordFulkerson {
   public FordFulkerson(FlowNetwork G, int s, int t) {
     value = 0.0;
     while(hasAugmentingPath(G, s, t)) {
-      double bottle = Double.POSITIVE_INFENITY;
+      double bottle = Double.POSITIVE_INFINITY;
 
       for(int v = t; v != s; v = edgeTo[v].other(v)) {
         bottle = Math.min(bottle, edgeTo[v].residualCapacityTo(v));
