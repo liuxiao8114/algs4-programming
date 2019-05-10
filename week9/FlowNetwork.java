@@ -22,6 +22,7 @@ public class FlowNetwork {
       int w = e.to();
       adj[v].add(e);
       adj[w].add(e);
+      E++;
   }
 
   // forward and backward edges incident to v
@@ -34,7 +35,7 @@ public class FlowNetwork {
     Queue<FlowEdge> q = new Queue<FlowEdge>();
     for(int i = 0; i < adj.length; i++) {
       for(FlowEdge e : adj[i]) {
-        if(e.other() != i) {
+        if(e.other(i) != i) {
           q.enqueue(e);
         }
       }

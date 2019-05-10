@@ -1,4 +1,4 @@
-public class IndexMinPQ<Key extends Comparable<Key>> implements Iterable<Integer> { 
+public class IndexMinPQ<Key extends Comparable<Key>> implements Iterable<Integer> {
     private int maxN;        // maximum number of elements on PQ
     private int n;           // number of elements on PQ
     private int[] pq;        // binary heap using 1-based indexing
@@ -30,8 +30,8 @@ public class IndexMinPQ<Key extends Comparable<Key>> implements Iterable<Integer
 
     private void swim(int k) {
     	if(k > 1 && greater(k / 2, k)) {
-			exch(k / 2, k);
-			swim(k / 2);
+  			exch(k / 2, k);
+  			swim(k / 2);
     	}
     }
 
@@ -75,17 +75,16 @@ public class IndexMinPQ<Key extends Comparable<Key>> implements Iterable<Integer
     }
 
     public void delete(int i) {
-		validate(i);
-		
-		int index = qp[i];
-		exch(index, n--);
-		sink(index);
-		swim(index);
-		keys[i] = null;
-		qp[i] = -1;
+  		validate(i);
+  		int index = qp[i];
+  		exch(index, n--);
+  		swim(index);
+      sink(index);
+  		keys[i] = null;
+  		qp[i] = -1;
     }
 
     public void decreaseKey(int i, Key key) {
-    	
+
     }
 }

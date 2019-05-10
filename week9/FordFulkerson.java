@@ -38,7 +38,7 @@ public class FordFulkerson {
         if(e.residualCapacityTo(w) > 0 && !marked[w]) {
           edgeTo[w] = e;
           marked[w] = true;
-          q.enqueue(e);
+          q.enqueue(w);
         }
       }
     }
